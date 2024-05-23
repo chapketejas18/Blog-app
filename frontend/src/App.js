@@ -41,8 +41,9 @@ const App = () => {
         />
         <Route
           path="/assignments"
-          element={<ProtectedRoute element={<Blogs />} />}
+          element={<ProtectedRoute element={<AssignmentsPage />} />}
         />
+        <Route path="/blogs" element={<Blogs />} />
       </Routes>
     </BrowserRouter>
   );
