@@ -3,7 +3,7 @@ import axios from "axios";
 import { Blog } from "./Blog";
 import Layout from "./Layout";
 
-export const Blogs = () => {
+export const Blogs = ({ setIsLoggedIn }) => {
   const [blogs, setBlogs] = useState([]);
 
   useEffect(() => {
@@ -15,13 +15,12 @@ export const Blogs = () => {
         console.error("Error fetching blogs:", error);
       }
     };
-
     fetchData();
   }, []);
 
   return (
     <div>
-      <Layout />
+      <Layout setIsLoggedIn={setIsLoggedIn} />
       {blogs.map((blog, index) => (
         <Blog
           key={index}

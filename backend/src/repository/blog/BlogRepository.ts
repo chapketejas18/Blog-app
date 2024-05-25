@@ -1,3 +1,4 @@
+import { userModel } from "../user/UserModel";
 import { blogModel } from "./BlogModel";
 import { IBlog } from "./IBlog";
 import { Request, Response } from "express";
@@ -13,13 +14,17 @@ class BlogRepository {
     imageurl: String,
     author: String
   ) => {
+    const user = await userModel.findById(author);
+    if (!user) {
+      throw new Error("User not found");
+    }
     const blog = {
       title,
       description,
       imageurl,
-      author,
+      author: user.username,
     };
-    return blogModel.create(blog);
+    return await blogModel.create(blog);
   };
 
   updateBlogById = async (

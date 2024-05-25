@@ -5,29 +5,45 @@ import CardHeader from "@mui/material/CardHeader";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
-import Collapse from "@mui/material/Collapse";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
-  marginLeft: "auto",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
+const truncateText = (text, length) => {
+  if (text.length <= length) return text;
+  return text.substring(0, length) + "...";
+};
 
-export const Blog = ({ id, title, description, imageURL, userName }) => {
+export const Blog = ({
+  id,
+  title,
+  description,
+  imageURL,
+  userName,
+  isUserBlog,
+}) => {
+  const navigate = useNavigate();
+  const deleteRequest = async () => {
+    const res = await axios
+      .delete(`http://localhost:9000/api/blogs/${id}`)
+      .catch((err) => console.log(err));
+    const data = await res.data;
+    return data;
+  };
+  const handleDelete = () => {
+    deleteRequest()
+      .then(() => navigate("/blogs"))
+      .then(() => navigate("/myblogs"));
+  };
+
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
@@ -40,10 +56,11 @@ export const Blog = ({ id, title, description, imageURL, userName }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "50vh",
+        minHeight: "59vh",
+        padding: 2,
       }}
     >
-      <Card sx={{ width: 1500 }} key={id}>
+      <Card sx={{ width: "100%", maxWidth: 1000 }} key={id}>
         <CardHeader
           avatar={
             <Avatar sx={{ bgcolor: red[500] }} aria-label="blog">
@@ -51,17 +68,35 @@ export const Blog = ({ id, title, description, imageURL, userName }) => {
             </Avatar>
           }
           action={
-            <IconButton aria-label="settings">
-              <MoreVertIcon />
-            </IconButton>
+            isUserBlog && (
+              <>
+                <IconButton aria-label="edit">
+                  <EditIcon />
+                </IconButton>
+                <IconButton aria-label="delete">
+                  <DeleteIcon onClick={handleDelete} />
+                </IconButton>
+              </>
+            )
           }
           title={title}
           subheader={userName}
         />
-        <CardMedia component="img" height="194" image={imageURL} alt={title} />
+        <CardMedia component="img" height="194" image={imageURL} />
         <CardContent>
           <Typography variant="body2" color="text.secondary">
-            {description}
+            {expanded ? description : truncateText(description, 150)}
+            {description.length > 150 && (
+              <Typography
+                variant="body2"
+                color="primary"
+                onClick={handleExpandClick}
+                sx={{ cursor: "pointer" }}
+              >
+                {" "}
+                {expanded ? "Read Less" : "Read More"}
+              </Typography>
+            )}
           </Typography>
         </CardContent>
         <CardActions disableSpacing>
@@ -71,22 +106,7 @@ export const Blog = ({ id, title, description, imageURL, userName }) => {
           <IconButton aria-label="share">
             <ShareIcon />
           </IconButton>
-          <ExpandMore
-            expand={expanded}
-            onClick={handleExpandClick}
-            aria-expanded={expanded}
-            aria-label="show more"
-          >
-            <ExpandMoreIcon />
-          </ExpandMore>
         </CardActions>
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <CardContent>
-            <Typography paragraph>
-              More details about the blog post can be shown here when expanded.
-            </Typography>
-          </CardContent>
-        </Collapse>
       </Card>
     </Box>
   );

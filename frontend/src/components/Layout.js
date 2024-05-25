@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Box,
@@ -7,28 +7,18 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Divider,
-  Button,
   Tabs,
   Tab,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const Layout = ({ children, setIsLoggedIn }) => {
   const [value, setValue] = useState();
-  const [dashboardAnchorEl, setDashboardAnchorEl] = useState(null);
+  const [title, setTitle] = useState("Blogs");
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const navigate = useNavigate();
-
-  const handleDashboardMenu = (event) => {
-    setDashboardAnchorEl(event.currentTarget);
-  };
-
-  const handleDashboardClose = () => {
-    setDashboardAnchorEl(null);
-  };
+  const location = useLocation();
 
   const handleProfileMenu = (event) => {
     setProfileAnchorEl(event.currentTarget);
@@ -44,23 +34,34 @@ const Layout = ({ children, setIsLoggedIn }) => {
     navigate("/");
   };
 
+  useEffect(() => {
+    switch (location.pathname) {
+      case "/blogs":
+        setValue(0);
+        setTitle("All Blogs");
+        break;
+      case "/myblogs":
+        setValue(1);
+        setTitle("My Blogs");
+        break;
+      case "/addblog":
+        setValue(2);
+        setTitle("Add Blog");
+        break;
+      default:
+        setValue(false);
+        setTitle("Blogs");
+    }
+  }, [location.pathname]);
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Blogs
+            {title}
           </Typography>
-          <Box display="flex" marginLeft={"auto"} marginRight="auto">
+          <Box display="flex" marginLeft="auto" marginRight="auto">
             <Tabs
               textColor="inherit"
               value={value}
@@ -94,6 +95,7 @@ const Layout = ({ children, setIsLoggedIn }) => {
           </Menu>
         </Toolbar>
       </AppBar>
+      {children}
     </Box>
   );
 };

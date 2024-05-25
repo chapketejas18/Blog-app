@@ -16,7 +16,7 @@ exports.blogSchema = new mongoose_1.Schema({
         required: true,
     },
     author: {
-        type: mongoose_1.Schema.Types.ObjectId,
+        type: String,
         ref: "User",
         required: true,
     },

@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { Box, Button, InputLabel, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import { useStyles } from "./utils";
 import Layout from "./Layout";
 
 const labelStyles = { mb: 1, mt: 2, fontSize: "24px", fontWeight: "bold" };
 
-export const AddBlog = () => {
+export const AddBlog = ({ setIsLoggedIn }) => {
   const classes = useStyles();
   const navigate = useNavigate();
   const [inputs, setInputs] = useState({
@@ -26,11 +27,14 @@ export const AddBlog = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const token = localStorage.getItem("token");
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.existingUser._id;
       const res = await axios.post("http://localhost:9000/api/createblog", {
         title: inputs.title,
         description: inputs.description,
         imageurl: inputs.imageURL,
-        author: localStorage.getItem("userId"),
+        author: userId,
       });
       console.log(res.data);
       navigate("/blogs");
@@ -41,7 +45,7 @@ export const AddBlog = () => {
 
   return (
     <div>
-      <Layout />
+      <Layout setIsLoggedIn={setIsLoggedIn} />
       <form onSubmit={handleSubmit}>
         <Box
           padding={3}

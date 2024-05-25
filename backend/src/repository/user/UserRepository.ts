@@ -1,4 +1,3 @@
-import { trusted } from "mongoose";
 import { IUser } from "./IUserModel";
 import { userModel } from "./UserModel";
 import bcrypt from "bcrypt";

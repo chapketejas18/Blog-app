@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const UserModel_1 = require("../user/UserModel");
 const BlogModel_1 = require("./BlogModel");
 class BlogRepository {
     constructor() {
@@ -16,13 +17,17 @@ class BlogRepository {
             return BlogModel_1.blogModel.find();
         });
         this.createBlog = (title, description, imageurl, author) => __awaiter(this, void 0, void 0, function* () {
+            const user = yield UserModel_1.userModel.findById(author);
+            if (!user) {
+                throw new Error("User not found");
+            }
             const blog = {
                 title,
                 description,
                 imageurl,
-                author,
+                author: user.username,
             };
-            return BlogModel_1.blogModel.create(blog);
+            return yield BlogModel_1.blogModel.create(blog);
         });
         this.updateBlogById = (id, title, description, imageurl) => __awaiter(this, void 0, void 0, function* () {
             const blog = {

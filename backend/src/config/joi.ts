@@ -1,6 +1,7 @@
 import Joi, { Schema } from "joi";
 
 export const userSchema: Schema = Joi.object({
+  username: Joi.string(),
   email: Joi.string().email(),
   password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
 });

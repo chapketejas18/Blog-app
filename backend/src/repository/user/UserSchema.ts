@@ -10,9 +10,9 @@ export const userSchema: Schema<IUser> = new Schema({
     type: String,
     required: true,
   },
-  role: {
+  username: {
     type: String,
-    default: "user",
+    required: true,
   },
   blogs: [
     {

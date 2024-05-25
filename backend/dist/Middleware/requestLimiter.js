@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const limiterOptions = {
     windowMs: 60 * 1000,
-    max: 10,
+    max: 1000,
     standardHeaders: true,
     legacyHeaders: false,
 };

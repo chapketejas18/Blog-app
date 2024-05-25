@@ -34,9 +34,9 @@ exports.userSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
-    role: {
+    username: {
         type: String,
-        default: "user",
+        required: true,
     },
     blogs: [
         {
