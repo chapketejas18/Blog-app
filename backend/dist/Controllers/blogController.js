@@ -112,7 +112,7 @@ class blogController {
                 }
                 const stringIds = blogIds.map((id) => id.toString());
                 const blogs = yield BlogRepository_1.default.findBlogsByIds(stringIds);
-                res.json({ blogs });
+                res.json(blogs);
             }
             catch (err) {
                 console.error("Error:", err);

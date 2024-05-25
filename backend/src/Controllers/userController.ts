@@ -129,7 +129,7 @@ class MockDataHandler {
           }
         );
         console.log(token);
-        res.status(200).json({ token: token });
+        res.status(200).json({ token: token, user: existingUser });
       } else {
         res.status(404).json({ message: "User not found" });
       }

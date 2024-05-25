@@ -5,6 +5,8 @@ import AssignmentsPage from "./components/AssignmentsPage";
 import Layout from "./components/Layout";
 import SignupPage from "./components/SignupPage";
 import { Blogs } from "./components/Blogs";
+import { UserBlogs } from "./components/UserBlogs";
+import { AddBlog } from "./components/AddBlog";
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -44,6 +46,8 @@ const App = () => {
           element={<ProtectedRoute element={<AssignmentsPage />} />}
         />
         <Route path="/blogs" element={<Blogs />} />
+        <Route path="/myblogs" element={<UserBlogs />} />
+        <Route path="/addblog" element={<AddBlog />} />
       </Routes>
     </BrowserRouter>
   );

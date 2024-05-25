@@ -14,7 +14,7 @@ class UserRepository {
   };
 
   findUserById = async (id: String) => {
-    return userModel.findById(id, { _id: 0, __v: 0 });
+    return userModel.findById(id);
   };
 
   deletdUserById = async (id: string) => {

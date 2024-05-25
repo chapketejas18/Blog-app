@@ -9,12 +9,15 @@ import {
   MenuItem,
   Divider,
   Button,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Layout = ({ children, setIsLoggedIn }) => {
+  const [value, setValue] = useState();
   const [dashboardAnchorEl, setDashboardAnchorEl] = useState(null);
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const navigate = useNavigate();
@@ -55,45 +58,19 @@ const Layout = ({ children, setIsLoggedIn }) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Blog
+            Blogs
           </Typography>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginRight: "16px",
-            }}
-          >
-            <Button
-              variant="text"
-              color="inherit"
-              aria-controls="dashboard-menu"
-              aria-haspopup="true"
-              onClick={handleDashboardMenu}
-              style={{ cursor: "pointer", marginRight: "8px" }}
+          <Box display="flex" marginLeft={"auto"} marginRight="auto">
+            <Tabs
+              textColor="inherit"
+              value={value}
+              onChange={(e, val) => setValue(val)}
             >
-              Dashboard
-            </Button>
-            <Menu
-              id="dashboard-menu"
-              anchorEl={dashboardAnchorEl}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              keepMounted
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
-              open={Boolean(dashboardAnchorEl)}
-              onClose={handleDashboardClose}
-            >
-              <MenuItem>About Us</MenuItem>
-              <MenuItem>Settings</MenuItem>
-              <MenuItem>Products</MenuItem>
-            </Menu>
-            <Divider
-              orientation="vertical"
-              flexItem
-              style={{ margin: "0 8px" }}
-            />
-          </div>
+              <Tab LinkComponent={Link} to="/blogs" label="All Blogs" />
+              <Tab LinkComponent={Link} to="/myblogs" label="My Blogs" />
+              <Tab LinkComponent={Link} to="/addblog" label="Add Blog" />
+            </Tabs>
+          </Box>
           <IconButton
             size="large"
             aria-label="account of current user"

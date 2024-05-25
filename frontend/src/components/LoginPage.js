@@ -57,9 +57,14 @@ const LoginPage = ({ setIsLoggedIn }) => {
             password: formData.password,
           }),
         });
+        console.log(response);
 
         if (response.ok) {
+          const responseData = await response.json();
+          console.log(responseData);
+          const { _id } = responseData.user;
           localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("userId", _id);
           setIsLoggedIn(true);
         } else {
           const errorData = await response.json();

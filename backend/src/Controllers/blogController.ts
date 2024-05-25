@@ -111,7 +111,7 @@ class blogController {
       }
       const stringIds = blogIds.map((id) => id.toString());
       const blogs = await BlogRepository.findBlogsByIds(stringIds);
-      res.json({ blogs });
+      res.json(blogs);
     } catch (err) {
       console.error("Error:", err);
       res.status(500).json({ error: "Internal Server Error" });

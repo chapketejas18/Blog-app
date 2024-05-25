@@ -19,7 +19,7 @@ class UserRepository {
             return UserModel_1.userModel.create(body);
         });
         this.findUserById = (id) => __awaiter(this, void 0, void 0, function* () {
-            return UserModel_1.userModel.findById(id, { _id: 0, __v: 0 });
+            return UserModel_1.userModel.findById(id);
         });
         this.deletdUserById = (id) => __awaiter(this, void 0, void 0, function* () {
             return UserModel_1.userModel.findByIdAndDelete(id);
