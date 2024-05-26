@@ -19,4 +19,21 @@ export const blogSchema: Schema<IBlog> = new Schema({
     ref: "User",
     required: true,
   },
+  authorid: {
+    type: String,
+    ref: "User",
+    required: true,
+  },
+  likedBy:{
+    type : [String],
+    ref:"User",
+  },
+  likecount:{
+    type:Number,
+    default:0
+  },
+  createdOn: {
+    type: Date,
+    default: () => new Date(),
+  },
 });

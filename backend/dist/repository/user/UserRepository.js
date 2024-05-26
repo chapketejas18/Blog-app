@@ -31,7 +31,7 @@ class UserRepository {
             return UserModel_1.userModel.findOneAndUpdate({ _id: id }, { $addToSet: { blogs: blogid } });
         });
         this.deleteBlogOfUser = (body) => __awaiter(this, void 0, void 0, function* () {
-            return UserModel_1.userModel.findOneAndUpdate({ _id: body.author }, { $pull: { blogs: body.id } }, { new: true });
+            return UserModel_1.userModel.findOneAndUpdate({ _id: body.authorid }, { $pull: { blogs: body.id } }, { new: true });
         });
         this.registerUser = (body) => __awaiter(this, void 0, void 0, function* () {
             const email = body.email;

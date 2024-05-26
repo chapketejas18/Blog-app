@@ -26,6 +26,7 @@ class BlogRepository {
                 description,
                 imageurl,
                 author: user.username,
+                authorid: author,
             };
             return yield BlogModel_1.blogModel.create(blog);
         });

@@ -29,6 +29,7 @@ export const Blog = ({
   imageURL,
   userName,
   isUserBlog,
+  createdOn,
 }) => {
   const navigate = useNavigate();
   const deleteRequest = async () => {
@@ -48,6 +49,26 @@ export const Blog = ({
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
+  };
+
+  const formatTime = (date) => {
+    const now = new Date();
+    const postDate = new Date(date);
+    const diff = now - postDate;
+    const diffMinutes = Math.floor(diff / (1000 * 60));
+    const diffHours = Math.floor(diff / (1000 * 60 * 60));
+    const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 0) {
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return `Posted on ${postDate.toLocaleDateString(undefined, options)}`;
+    } else if (diffHours > 0) {
+      return `Posted ${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+    } else if (diffMinutes > 0) {
+      return `Posted ${diffMinutes} minute${diffMinutes > 1 ? "s" : ""} ago`;
+    } else {
+      return `Posted just now`;
+    }
   };
 
   return (
@@ -79,8 +100,25 @@ export const Blog = ({
               </>
             )
           }
-          title={title}
-          subheader={userName}
+          title={
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ fontWeight: "bold" }}
+            >
+              {title}
+            </Typography>
+          }
+          subheader={
+            <>
+              <Typography variant="body2" color="text.primary">
+                {userName}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {formatTime(createdOn)}
+              </Typography>
+            </>
+          }
         />
         <CardMedia component="img" height="194" image={imageURL} />
         <CardContent>

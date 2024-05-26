@@ -87,7 +87,8 @@ export const UserBlogs = ({ setIsLoggedIn }) => {
           description={blog.description}
           imageURL={blog.imageurl}
           userName={username}
-          isUserBlog={blog.author === userid}
+          isUserBlog={blog.author === username}
+          createdOn={blog.createdOn}
         />
       ))}
     </div>

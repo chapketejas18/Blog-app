@@ -5,4 +5,8 @@ export interface IBlog extends Document {
   description: string;
   imageurl: string;
   author: string;
+  authorid: string;
+  likedBy : string[];
+  likecount : number;
+  createdOn: Date;
 }

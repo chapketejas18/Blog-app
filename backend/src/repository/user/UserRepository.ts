@@ -33,7 +33,7 @@ class UserRepository {
 
   deleteBlogOfUser = async (body: IBlog) => {
     return userModel.findOneAndUpdate(
-      { _id: body.author },
+      { _id: body.authorid },
       { $pull: { blogs: body.id } },
       { new: true }
     );

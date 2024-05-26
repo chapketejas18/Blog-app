@@ -23,6 +23,7 @@ class BlogRepository {
       description,
       imageurl,
       author: user.username,
+      authorid : author,
     };
     return await blogModel.create(blog);
   };
@@ -52,6 +53,7 @@ class BlogRepository {
   findBlogsByIds = async (ids: string[]): Promise<IBlog[]> => {
     return blogModel.find({ _id: { $in: ids } });
   };
+  
 }
 
 export default new BlogRepository();

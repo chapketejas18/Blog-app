@@ -29,6 +29,7 @@ export const Blogs = ({ setIsLoggedIn }) => {
           description={blog.description}
           imageURL={blog.imageurl}
           userName={blog.author}
+          createdOn={blog.createdOn}
         />
       ))}
     </div>
