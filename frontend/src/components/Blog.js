@@ -16,6 +16,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const truncateText = (text, length) => {
   if (text.length <= length) return text;
@@ -30,8 +31,16 @@ export const Blog = ({
   userName,
   isUserBlog,
   createdOn,
+  likedBy,
+  likeCount,
 }) => {
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const decodedToken = jwtDecode(token);
+  const userid = decodedToken.existingUser._id;
+  const [liked, setLiked] = React.useState(likedBy.includes(userid));
+  const [likes, setLikes] = React.useState(likeCount);
+
   const deleteRequest = async () => {
     const token = localStorage.getItem("token");
     const res = await axios
@@ -44,14 +53,35 @@ export const Blog = ({
     const data = await res.data;
     return data;
   };
+
   const handleDelete = () => {
-    deleteRequest()
-      .then(alert("Deleted Successfully."))
-      .then(() => navigate("/blogs"));
+    deleteRequest().then(() => {
+      alert("Deleted Successfully.");
+      navigate("/blogs");
+    });
   };
 
   const handleEdit = () => {
     navigate("/edit", { state: { id, title, description } });
+  };
+
+  const handleLike = async () => {
+    try {
+      const res = await axios.put(
+        `http://localhost:9000/api/blogs/${id}/like`,
+        { userid },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      const data = res.data;
+      setLiked(data.blog.likedBy.includes(userid));
+      setLikes(data.blog.likeCount);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const [expanded, setExpanded] = React.useState(false);
@@ -147,9 +177,12 @@ export const Blog = ({
           </Typography>
         </CardContent>
         <CardActions disableSpacing>
-          <IconButton aria-label="add to favorites">
-            <FavoriteIcon />
+          <IconButton aria-label="add to favorites" onClick={handleLike}>
+            <FavoriteIcon sx={{ color: liked ? red[500] : "inherit" }} />
           </IconButton>
+          <Typography variant="body2" color="text.secondary">
+            {likes} {likes === 1 ? "like" : "likes"}
+          </Typography>
           <IconButton aria-label="share">
             <ShareIcon />
           </IconButton>

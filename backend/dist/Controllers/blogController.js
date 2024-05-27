@@ -119,6 +119,22 @@ class blogController {
                 res.status(500).json({ error: "Internal Server Error" });
             }
         });
+        this.likeBlog = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const blogId = req.params.id;
+                const userId = req.body.userId;
+                if (!userId) {
+                    res.status(400).json({ error: "User ID is required" });
+                    return;
+                }
+                const updatedBlog = yield BlogRepository_1.default.likeBlogById(blogId, userId);
+                res.json({ message: "Like status updated successfully", blog: updatedBlog });
+            }
+            catch (err) {
+                console.error("Error:", err);
+                res.status(500).json({ error: "Internal Server Error" });
+            }
+        });
     }
 }
 exports.default = new blogController();

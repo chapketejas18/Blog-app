@@ -29,12 +29,14 @@ export const Blogs = ({ setIsLoggedIn }) => {
       {blogs.map((blog, index) => (
         <Blog
           key={index}
-          id={index}
+          id={blog._id}
           title={blog.title}
           description={blog.description}
           imageURL={blog.imageurl}
           userName={blog.author}
           createdOn={blog.createdOn}
+          likedBy={blog.likedBy}
+          likeCount={blog.likeCount}
         />
       ))}
     </div>

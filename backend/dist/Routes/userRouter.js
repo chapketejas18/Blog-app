@@ -33,5 +33,6 @@ router
     .delete(authMiddleware_1.default, blogController_1.default.deleteBlogById)
     .put(authMiddleware_1.default, blogController_1.default.updateBlog);
 router.get("/blogsof/:id", authMiddleware_1.default, blogController_1.default.getBlogsByUser);
+router.put("/blogs/:id/like", blogController_1.default.likeBlog);
 // router.get("/dashboard", authenticate, isAdmin, userController.dashboard);
 exports.default = router;

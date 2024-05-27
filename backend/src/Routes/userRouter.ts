@@ -36,6 +36,8 @@ router
 
 router.get("/blogsof/:id", authenticate, blogController.getBlogsByUser);
 
+router.put("/blogs/:id/like", blogController.likeBlog);
+
 // router.get("/dashboard", authenticate, isAdmin, userController.dashboard);
 
 export default router;

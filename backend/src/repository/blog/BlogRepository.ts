@@ -53,6 +53,36 @@ class BlogRepository {
   findBlogsByIds = async (ids: string[]): Promise<IBlog[]> => {
     return blogModel.find({ _id: { $in: ids } });
   };
+
+  likeBlogById = async (id: string, userId: string) => {
+    const blog = await blogModel.findById(id);
+    if (!blog) {
+      throw new Error("Blog not found");
+    }
+
+    const userIndex = blog.likedBy.indexOf(userId);
+
+    if (userIndex === -1) {
+      await blogModel.findByIdAndUpdate(
+        id,
+        {
+          $push: { likedBy: userId },
+          $inc: { likecount: 1 }
+        },
+        { new: true }
+      );
+    } else {
+      await blogModel.findByIdAndUpdate(
+        id,
+        {
+          $pull: { likedBy: userId },
+          $inc: { likecount: -1 }
+        },
+        { new: true }
+      );
+    }
+    return blogModel.findById(id);
+  };
   
 }
 

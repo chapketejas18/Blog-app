@@ -47,6 +47,26 @@ class BlogRepository {
         this.findBlogsByIds = (ids) => __awaiter(this, void 0, void 0, function* () {
             return BlogModel_1.blogModel.find({ _id: { $in: ids } });
         });
+        this.likeBlogById = (id, userId) => __awaiter(this, void 0, void 0, function* () {
+            const blog = yield BlogModel_1.blogModel.findById(id);
+            if (!blog) {
+                throw new Error("Blog not found");
+            }
+            const userIndex = blog.likedBy.indexOf(userId);
+            if (userIndex === -1) {
+                yield BlogModel_1.blogModel.findByIdAndUpdate(id, {
+                    $push: { likedBy: userId },
+                    $inc: { likecount: 1 }
+                }, { new: true });
+            }
+            else {
+                yield BlogModel_1.blogModel.findByIdAndUpdate(id, {
+                    $pull: { likedBy: userId },
+                    $inc: { likecount: -1 }
+                }, { new: true });
+            }
+            return BlogModel_1.blogModel.findById(id);
+        });
     }
 }
 exports.default = new BlogRepository();

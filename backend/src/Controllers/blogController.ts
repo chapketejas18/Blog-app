@@ -117,6 +117,22 @@ class blogController {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+
+  likeBlog = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const blogId = req.params.id;
+      const userId = req.body.userId;
+      if (!userId) {
+        res.status(400).json({ error: "User ID is required" });
+        return;
+      }
+      const updatedBlog = await BlogRepository.likeBlogById(blogId, userId);
+      res.json({ message: "Like status updated successfully", blog: updatedBlog });
+    } catch (err) {
+      console.error("Error:", err);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
 }
 
 export default new blogController();
