@@ -6,6 +6,7 @@ import SignupPage from "./components/SignupPage";
 import { Blogs } from "./components/Blogs";
 import { UserBlogs } from "./components/UserBlogs";
 import { AddBlog } from "./components/AddBlog";
+import { UpdateBlog } from "./components/UpdateBlog";
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -55,6 +56,14 @@ const App = () => {
           element={
             <ProtectedRoute
               element={<AddBlog setIsLoggedIn={setIsLoggedIn} />}
+            />
+          }
+        />
+        <Route
+          path="/edit"
+          element={
+            <ProtectedRoute
+              element={<UpdateBlog setIsLoggedIn={setIsLoggedIn} />}
             />
           }
         />

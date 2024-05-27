@@ -48,6 +48,10 @@ const Layout = ({ children, setIsLoggedIn }) => {
         setValue(2);
         setTitle("Add Blog");
         break;
+      case "/edit":
+        setValue(3);
+        setTitle("Edit Blog");
+        break;
       default:
         setValue(false);
         setTitle("Blogs");

@@ -9,7 +9,12 @@ export const Blogs = ({ setIsLoggedIn }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:9000/api/blogs");
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:9000/api/blogs", {
+          headers: {
+            Authorization: token,
+          },
+        });
         setBlogs(response.data);
       } catch (error) {
         console.error("Error fetching blogs:", error);

@@ -26,15 +26,15 @@ router.get("/healthcheck", (req: Request, res: Response) => {
 
 router.post("/signup", userController.register);
 router.post("/login", userController.login);
-router.get("/blogs", blogController.getAllBlogs);
-router.post("/createblog", blogController.addBlog);
+router.get("/blogs", authenticate, blogController.getAllBlogs);
+router.post("/createblog", authenticate, blogController.addBlog);
 router
   .route("/blogs/:id")
-  .get(blogController.getBlogById)
-  .delete(blogController.deleteBlogById)
-  .put(blogController.updateBlog);
+  .get(authenticate,blogController.getBlogById)
+  .delete(authenticate,blogController.deleteBlogById)
+  .put(authenticate,blogController.updateBlog);
 
-router.get("/blogsof/:id", blogController.getBlogsByUser);
+router.get("/blogsof/:id", authenticate, blogController.getBlogsByUser);
 
 // router.get("/dashboard", authenticate, isAdmin, userController.dashboard);
 

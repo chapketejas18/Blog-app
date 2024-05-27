@@ -15,8 +15,14 @@ export const UserBlogs = ({ setIsLoggedIn }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem("token");
         const response = await axios.get(
-          `http://localhost:9000/api/blogsof/${userid}`
+          `http://localhost:9000/api/blogsof/${userid}`,
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
         );
         setBlogs(response.data);
       } catch (error) {

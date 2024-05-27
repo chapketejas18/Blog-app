@@ -33,16 +33,25 @@ export const Blog = ({
 }) => {
   const navigate = useNavigate();
   const deleteRequest = async () => {
+    const token = localStorage.getItem("token");
     const res = await axios
-      .delete(`http://localhost:9000/api/blogs/${id}`)
+      .delete(`http://localhost:9000/api/blogs/${id}`, {
+        headers: {
+          Authorization: token,
+        },
+      })
       .catch((err) => console.log(err));
     const data = await res.data;
     return data;
   };
   const handleDelete = () => {
     deleteRequest()
-      .then(() => navigate("/blogs"))
-      .then(() => navigate("/myblogs"));
+      .then(alert("Deleted Successfully."))
+      .then(() => navigate("/blogs"));
+  };
+
+  const handleEdit = () => {
+    navigate("/edit", { state: { id, title, description } });
   };
 
   const [expanded, setExpanded] = React.useState(false);
@@ -91,7 +100,7 @@ export const Blog = ({
           action={
             isUserBlog && (
               <>
-                <IconButton aria-label="edit">
+                <IconButton aria-label="edit" onClick={handleEdit}>
                   <EditIcon />
                 </IconButton>
                 <IconButton aria-label="delete">

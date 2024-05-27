@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const userController_1 = __importDefault(require("../Controllers/userController"));
+const authMiddleware_1 = __importDefault(require("../Middleware/authMiddleware"));
 const blogController_1 = __importDefault(require("../Controllers/blogController"));
 const router = express.Router();
 router
@@ -24,13 +25,13 @@ router.get("/healthcheck", (req, res) => {
 });
 router.post("/signup", userController_1.default.register);
 router.post("/login", userController_1.default.login);
-router.get("/blogs", blogController_1.default.getAllBlogs);
-router.post("/createblog", blogController_1.default.addBlog);
+router.get("/blogs", authMiddleware_1.default, blogController_1.default.getAllBlogs);
+router.post("/createblog", authMiddleware_1.default, blogController_1.default.addBlog);
 router
     .route("/blogs/:id")
-    .get(blogController_1.default.getBlogById)
-    .delete(blogController_1.default.deleteBlogById)
-    .put(blogController_1.default.updateBlog);
-router.get("/blogsof/:id", blogController_1.default.getBlogsByUser);
+    .get(authMiddleware_1.default, blogController_1.default.getBlogById)
+    .delete(authMiddleware_1.default, blogController_1.default.deleteBlogById)
+    .put(authMiddleware_1.default, blogController_1.default.updateBlog);
+router.get("/blogsof/:id", authMiddleware_1.default, blogController_1.default.getBlogsByUser);
 // router.get("/dashboard", authenticate, isAdmin, userController.dashboard);
 exports.default = router;

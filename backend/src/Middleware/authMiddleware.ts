@@ -19,11 +19,9 @@ const authenticate = (
   next: NextFunction
 ): void => {
   const token = req.headers.authorization as string;
-
   if (!token) {
     res.status(401).json({ error: "Authentication failed. Token is missing." });
   }
-
   try {
     const decoded = jwt.verify(token, secretKey);
     req.user = decoded;

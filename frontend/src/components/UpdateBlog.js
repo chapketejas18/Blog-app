@@ -1,20 +1,25 @@
 import React, { useState } from "react";
 import { Box, Button, InputLabel, TextField, Typography } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useStyles } from "./utils";
 import Layout from "./Layout";
 
 const labelStyles = { mb: 1, mt: 2, fontSize: "24px", fontWeight: "bold" };
 
-export const AddBlog = ({ setIsLoggedIn }) => {
+export const UpdateBlog = ({ setIsLoggedIn }) => {
   const classes = useStyles();
   const navigate = useNavigate();
+  const location = useLocation();
+  const {
+    id,
+    title: initialTitle,
+    description: initialDescription,
+  } = location.state;
+
   const [inputs, setInputs] = useState({
-    title: "",
-    description: "",
-    imageURL: "",
+    title: initialTitle,
+    description: initialDescription,
   });
 
   const handleChange = (e) => {
@@ -28,16 +33,11 @@ export const AddBlog = ({ setIsLoggedIn }) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const decodedToken = jwtDecode(token);
-      const userId = decodedToken.existingUser._id;
-      console.log(token);
-      const res = await axios.post(
-        "http://localhost:9000/api/createblog",
+      const res = await axios.put(
+        `http://localhost:9000/api/blogs/${id}`,
         {
           title: inputs.title,
           description: inputs.description,
-          imageurl: inputs.imageURL,
-          author: userId,
         },
         {
           headers: {
@@ -48,7 +48,7 @@ export const AddBlog = ({ setIsLoggedIn }) => {
       console.log(res.data);
       navigate("/blogs");
     } catch (error) {
-      console.error("Error adding blog:", error);
+      console.error("Error updating blog:", error);
     }
   };
 
@@ -72,7 +72,7 @@ export const AddBlog = ({ setIsLoggedIn }) => {
             variant="h2"
             textAlign={"center"}
           >
-            Post Your Blog
+            Update Your Blog
           </Typography>
           <InputLabel className={classes.font} sx={labelStyles}>
             Title
@@ -93,17 +93,6 @@ export const AddBlog = ({ setIsLoggedIn }) => {
             name="description"
             onChange={handleChange}
             value={inputs.description}
-            margin="auto"
-            variant="outlined"
-          />
-          <InputLabel className={classes.font} sx={labelStyles}>
-            ImageURL
-          </InputLabel>
-          <TextField
-            className={classes.font}
-            name="imageURL"
-            onChange={handleChange}
-            value={inputs.imageURL}
             margin="auto"
             variant="outlined"
           />
