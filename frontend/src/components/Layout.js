@@ -17,6 +17,7 @@ const Layout = ({ children, setIsLoggedIn }) => {
   const [value, setValue] = useState();
   const [title, setTitle] = useState("Blogs");
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
+  const [isLoggedIn, setIsLoggedInLocal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,6 +34,11 @@ const Layout = ({ children, setIsLoggedIn }) => {
     setIsLoggedIn(false);
     navigate("/");
   };
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("isLoggedIn");
+    setIsLoggedInLocal(loggedIn === "true");
+  }, []);
 
   useEffect(() => {
     switch (location.pathname) {
@@ -76,27 +82,31 @@ const Layout = ({ children, setIsLoggedIn }) => {
               <Tab LinkComponent={Link} to="/addblog" label="Add Blog" />
             </Tabs>
           </Box>
-          <IconButton
-            size="large"
-            aria-label="account of current user"
-            aria-controls="profile-menu"
-            aria-haspopup="true"
-            onClick={handleProfileMenu}
-            color="inherit"
-          >
-            <AccountCircle />
-          </IconButton>
-          <Menu
-            id="profile-menu"
-            anchorEl={profileAnchorEl}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            keepMounted
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-            open={Boolean(profileAnchorEl)}
-            onClose={handleProfileClose}
-          >
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </Menu>
+          {isLoggedIn && (
+            <>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="profile-menu"
+                aria-haspopup="true"
+                onClick={handleProfileMenu}
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+              <Menu
+                id="profile-menu"
+                anchorEl={profileAnchorEl}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                keepMounted
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                open={Boolean(profileAnchorEl)}
+                onClose={handleProfileClose}
+              >
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </Menu>
+            </>
+          )}
         </Toolbar>
       </AppBar>
       {children}

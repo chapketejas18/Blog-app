@@ -35,6 +35,7 @@ export const Blog = ({
 }) => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
   const decodedToken = jwtDecode(token);
   const userid = decodedToken.existingUser._id;
   const [liked, setLiked] = React.useState(likedBy.includes(userid));
@@ -66,6 +67,10 @@ export const Blog = ({
   };
 
   const handleLike = async () => {
+    if (!isLoggedIn) {
+      alert("Log in to like the blogs");
+      return;
+    }
     try {
       const res = await axios.put(
         `http://localhost:9000/api/blogs/${id}/like`,

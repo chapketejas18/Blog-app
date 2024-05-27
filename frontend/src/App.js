@@ -39,9 +39,7 @@ const App = () => {
         />
         <Route
           path="/blogs"
-          element={
-            <ProtectedRoute element={<Blogs setIsLoggedIn={setIsLoggedIn} />} />
-          }
+          element={<Blogs setIsLoggedIn={setIsLoggedIn} />}
         />
         <Route
           path="/myblogs"

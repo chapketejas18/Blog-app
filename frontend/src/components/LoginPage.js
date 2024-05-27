@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, TextField, Container, Typography, Box } from "@mui/material";
 import { Link } from "react-router-dom";
+import Layout from "./Layout";
 
 const LoginPage = ({ setIsLoggedIn }) => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -78,89 +79,91 @@ const LoginPage = ({ setIsLoggedIn }) => {
   };
 
   return (
-    <Container
-      maxWidth="sm"
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-      }}
-    >
-      <Box>
-        <Box
-          style={{
-            border: "1px solid #ccc",
-            padding: "20px",
-          }}
-        >
-          <Typography variant="h4" align="center" gutterBottom>
-            Login
-          </Typography>
-          {errors.form && (
-            <Typography
-              variant="body1"
-              align="center"
-              gutterBottom
-              sx={{ color: "red" }}
-            >
-              {errors.form}
-            </Typography>
-          )}
+    <Layout>
+      <Container
+        maxWidth="sm"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <Box>
           <Box
-            component="form"
-            noValidate
-            onSubmit={handleLogin}
-            sx={{ mt: 1 }}
+            style={{
+              border: "1px solid #ccc",
+              padding: "20px",
+            }}
           >
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email"
-              name="email"
-              autoFocus
-              value={formData.email}
-              onChange={handleChange}
-              error={!!errors.email}
-              helperText={errors.email}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              value={formData.password}
-              onChange={handleChange}
-              error={!!errors.password}
-              helperText={errors.password}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={
-                !formData.email ||
-                !formData.password ||
-                !!errors.email ||
-                !!errors.password
-              }
-            >
-              Sign In
-            </Button>
-            <Typography align="center" sx={{ mt: 2 }}>
-              Don't have an account? <Link to="/signup">Sign Up</Link>
+            <Typography variant="h4" align="center" gutterBottom>
+              Login
             </Typography>
+            {errors.form && (
+              <Typography
+                variant="body1"
+                align="center"
+                gutterBottom
+                sx={{ color: "red" }}
+              >
+                {errors.form}
+              </Typography>
+            )}
+            <Box
+              component="form"
+              noValidate
+              onSubmit={handleLogin}
+              sx={{ mt: 1 }}
+            >
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email"
+                name="email"
+                autoFocus
+                value={formData.email}
+                onChange={handleChange}
+                error={!!errors.email}
+                helperText={errors.email}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                error={!!errors.password}
+                helperText={errors.password}
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                sx={{ mt: 3, mb: 2 }}
+                disabled={
+                  !formData.email ||
+                  !formData.password ||
+                  !!errors.email ||
+                  !!errors.password
+                }
+              >
+                Sign In
+              </Button>
+              <Typography align="center" sx={{ mt: 2 }}>
+                Don't have an account? <Link to="/signup">Sign Up</Link>
+              </Typography>
+            </Box>
           </Box>
         </Box>
-      </Box>
-    </Container>
+      </Container>
+    </Layout>
   );
 };
 
