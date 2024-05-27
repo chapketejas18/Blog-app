@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Blog } from "./Blog";
 import Layout from "./Layout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 export const UserBlogs = ({ setIsLoggedIn }) => {
   const [blogs, setBlogs] = useState([]);
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
   const decodedToken = jwtDecode(token);
   const userid = decodedToken.existingUser._id;
   const username = decodedToken.existingUser.username;
@@ -26,7 +27,15 @@ export const UserBlogs = ({ setIsLoggedIn }) => {
         );
         setBlogs(response.data);
       } catch (error) {
-        console.error("Error fetching blogs:", error);
+        if (error.response && error.response.status === 401) {
+          alert("Please log in again.");
+          setIsLoggedIn(false);
+          localStorage.setItem("isLoggedIn", "false");
+          localStorage.removeItem("token");
+          navigate("/");
+        } else {
+          console.error("Error adding blog:", error);
+        }
       }
     };
 
@@ -95,6 +104,8 @@ export const UserBlogs = ({ setIsLoggedIn }) => {
           userName={username}
           isUserBlog={blog.author === username}
           createdOn={blog.createdOn}
+          likedBy={blog.likedBy}
+          likeCount={blog.likecount}
         />
       ))}
     </div>

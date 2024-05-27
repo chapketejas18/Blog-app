@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import BlogRepository from "../repository/blog/BlogRepository";
 import UserRepository from "../repository/user/UserRepository";
-
 class blogController {
   getAllBlogs = async (req: Request, res: Response) => {
     try {
@@ -15,6 +14,7 @@ class blogController {
 
   addBlog = async (req: Request, res: Response) => {
     const { title, description, imageurl, author } = req.body;
+    console.log("::::::imageurl", imageurl);
     let existingUser;
 
     try {
@@ -121,13 +121,16 @@ class blogController {
   likeBlog = async (req: Request, res: Response): Promise<void> => {
     try {
       const blogId = req.params.id;
-      const userId = req.body.userId;
-      if (!userId) {
+      const userid = req.body.userid;
+      if (!userid) {
         res.status(400).json({ error: "User ID is required" });
         return;
       }
-      const updatedBlog = await BlogRepository.likeBlogById(blogId, userId);
-      res.json({ message: "Like status updated successfully", blog: updatedBlog });
+      const updatedBlog = await BlogRepository.likeBlogById(blogId, userid);
+      res.json({
+        message: "Like status updated successfully",
+        blog: updatedBlog,
+      });
     } catch (err) {
       console.error("Error:", err);
       res.status(500).json({ error: "Internal Server Error" });

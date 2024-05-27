@@ -5,12 +5,26 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useStyles } from "./utils";
 import Layout from "./Layout";
+import { styled } from "@mui/system";
+import firebase from "firebase/compat/app";
+import "firebase/compat/storage";
 
 const labelStyles = { mb: 1, mt: 2, fontSize: "24px", fontWeight: "bold" };
+
+const ResizableTextarea = styled("textarea")({
+  width: "100%",
+  minHeight: "100px",
+  resize: "vertical",
+  mb: 1,
+  mt: 2,
+  fontSize: "18px",
+});
 
 export const AddBlog = ({ setIsLoggedIn }) => {
   const classes = useStyles();
   const navigate = useNavigate();
+  const [imgurl, setImageurl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const [inputs, setInputs] = useState({
     title: "",
     description: "",
@@ -22,6 +36,29 @@ export const AddBlog = ({ setIsLoggedIn }) => {
       ...prevState,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const handleFileUpload = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      setIsUploading(true);
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(selectedFile.name);
+
+      fileRef.put(selectedFile).then((snapshot) => {
+        snapshot.ref.getDownloadURL().then((downloadURL) => {
+          console.log(downloadURL);
+          setImageurl(downloadURL);
+          setInputs((prevState) => ({
+            ...prevState,
+            imageURL: downloadURL,
+          }));
+          setIsUploading(false);
+        });
+      });
+    } else {
+      console.log("No file selected");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -36,7 +73,7 @@ export const AddBlog = ({ setIsLoggedIn }) => {
         {
           title: inputs.title,
           description: inputs.description,
-          imageurl: inputs.imageURL,
+          imageurl: imgurl,
           author: userId,
         },
         {
@@ -48,7 +85,15 @@ export const AddBlog = ({ setIsLoggedIn }) => {
       console.log(res.data);
       navigate("/blogs");
     } catch (error) {
-      console.error("Error adding blog:", error);
+      if (error.response && error.response.status === 401) {
+        alert("Please log in again.");
+        setIsLoggedIn(false);
+        localStorage.setItem("isLoggedIn", "false");
+        localStorage.removeItem("token");
+        navigate("/");
+      } else {
+        console.error("Error adding blog:", error);
+      }
     }
   };
 
@@ -88,30 +133,36 @@ export const AddBlog = ({ setIsLoggedIn }) => {
           <InputLabel className={classes.font} sx={labelStyles}>
             Description
           </InputLabel>
-          <TextField
+          <ResizableTextarea
             className={classes.font}
             name="description"
             onChange={handleChange}
             value={inputs.description}
-            margin="auto"
-            variant="outlined"
           />
           <InputLabel className={classes.font} sx={labelStyles}>
-            ImageURL
+            Image
           </InputLabel>
-          <TextField
-            className={classes.font}
-            name="imageURL"
-            onChange={handleChange}
-            value={inputs.imageURL}
-            margin="auto"
-            variant="outlined"
+          <input
+            type="file"
+            onChange={handleFileUpload}
+            aria-label="File upload input"
+            style={{ marginBottom: "16px", marginTop: "8px", fontSize: "18px" }}
           />
-          <Box display="flex" justifyContent="center">
-            <Button sx={{ mt: 5, width: 200 }} type="submit">
-              Submit
-            </Button>
-          </Box>
+          {isUploading ? (
+            <Typography variant="body1" textAlign="center">
+              Uploading...
+            </Typography>
+          ) : (
+            <Box display="flex" justifyContent="center">
+              <Button
+                sx={{ mt: 5, width: 200 }}
+                type="submit"
+                disabled={!imgurl.length}
+              >
+                Submit
+              </Button>
+            </Box>
+          )}
         </Box>
       </form>
     </div>

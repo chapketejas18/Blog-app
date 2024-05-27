@@ -4,8 +4,18 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useStyles } from "./utils";
 import Layout from "./Layout";
+import { styled } from "@mui/system";
 
 const labelStyles = { mb: 1, mt: 2, fontSize: "24px", fontWeight: "bold" };
+
+const ResizableTextarea = styled("textarea")({
+  width: "100%",
+  minHeight: "100px",
+  resize: "vertical",
+  mb: 1,
+  mt: 2,
+  fontSize: "18px",
+});
 
 export const UpdateBlog = ({ setIsLoggedIn }) => {
   const classes = useStyles();
@@ -88,13 +98,11 @@ export const UpdateBlog = ({ setIsLoggedIn }) => {
           <InputLabel className={classes.font} sx={labelStyles}>
             Description
           </InputLabel>
-          <TextField
+          <ResizableTextarea
             className={classes.font}
             name="description"
             onChange={handleChange}
             value={inputs.description}
-            margin="auto"
-            variant="outlined"
           />
           <Box display="flex" justifyContent="center">
             <Button sx={{ mt: 5, width: 200 }} type="submit">

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardMedia from "@mui/material/CardMedia";
@@ -40,6 +39,7 @@ export const Blog = ({
   const userid = decodedToken.existingUser._id;
   const [liked, setLiked] = React.useState(likedBy.includes(userid));
   const [likes, setLikes] = React.useState(likeCount);
+  console.log("::likecount", likeCount);
 
   const deleteRequest = async () => {
     const token = localStorage.getItem("token");
@@ -78,10 +78,22 @@ export const Blog = ({
       );
       const data = res.data;
       setLiked(data.blog.likedBy.includes(userid));
-      setLikes(data.blog.likeCount);
+      setLikes(data.blog.likecount);
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleShare = () => {
+    const blogUrl = `http://localhost:9000/api/blogs/${id}`;
+    navigator.clipboard
+      .writeText(blogUrl)
+      .then(() => {
+        alert("Blog link copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
   };
 
   const [expanded, setExpanded] = React.useState(false);
@@ -181,9 +193,9 @@ export const Blog = ({
             <FavoriteIcon sx={{ color: liked ? red[500] : "inherit" }} />
           </IconButton>
           <Typography variant="body2" color="text.secondary">
-            {likes} {likes === 1 ? "like" : "likes"}
+            {likes}
           </Typography>
-          <IconButton aria-label="share">
+          <IconButton aria-label="share" onClick={handleShare}>
             <ShareIcon />
           </IconButton>
         </CardActions>

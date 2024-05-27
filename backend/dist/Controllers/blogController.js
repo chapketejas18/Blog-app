@@ -28,6 +28,7 @@ class blogController {
         });
         this.addBlog = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { title, description, imageurl, author } = req.body;
+            console.log("::::::imageurl", imageurl);
             let existingUser;
             try {
                 existingUser = yield UserRepository_1.default.findUserById(author);
@@ -122,13 +123,16 @@ class blogController {
         this.likeBlog = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const blogId = req.params.id;
-                const userId = req.body.userId;
-                if (!userId) {
+                const userid = req.body.userid;
+                if (!userid) {
                     res.status(400).json({ error: "User ID is required" });
                     return;
                 }
-                const updatedBlog = yield BlogRepository_1.default.likeBlogById(blogId, userId);
-                res.json({ message: "Like status updated successfully", blog: updatedBlog });
+                const updatedBlog = yield BlogRepository_1.default.likeBlogById(blogId, userid);
+                res.json({
+                    message: "Like status updated successfully",
+                    blog: updatedBlog,
+                });
             }
             catch (err) {
                 console.error("Error:", err);
