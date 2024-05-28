@@ -14,7 +14,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const Layout = ({ children, setIsLoggedIn }) => {
-  const [value, setValue] = useState();
+  const [value, setValue] = useState(0);
   const [title, setTitle] = useState("Blogs");
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const [isLoggedIn, setIsLoggedInLocal] = useState(false);
@@ -59,6 +59,10 @@ const Layout = ({ children, setIsLoggedIn }) => {
         setValue(3);
         setTitle("Edit Blog");
         break;
+      case "/":
+        setValue(4);
+        setTitle("Login");
+        break;
       default:
         setValue(false);
         setTitle("Blogs");
@@ -79,35 +83,44 @@ const Layout = ({ children, setIsLoggedIn }) => {
               onChange={(e, val) => setValue(val)}
             >
               <Tab LinkComponent={Link} to="/blogs" label="All Blogs" />
-              <Tab LinkComponent={Link} to="/myblogs" label="My Blogs" />
-              <Tab LinkComponent={Link} to="/addblog" label="Add Blog" />
+              {isLoggedIn && (
+                <>
+                  <Tab LinkComponent={Link} to="/myblogs" label="My Blogs" />
+                  <Tab LinkComponent={Link} to="/addblog" label="Add Blog" />
+                </>
+              )}
             </Tabs>
           </Box>
-          {isLoggedIn && (
-            <>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="profile-menu"
-                aria-haspopup="true"
-                onClick={handleProfileMenu}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
-              <Menu
-                id="profile-menu"
-                anchorEl={profileAnchorEl}
-                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                keepMounted
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
-                open={Boolean(profileAnchorEl)}
-                onClose={handleProfileClose}
-              >
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="profile-menu"
+            aria-haspopup="true"
+            onClick={handleProfileMenu}
+            color="inherit"
+          >
+            <AccountCircle />
+          </IconButton>
+          <Menu
+            id="profile-menu"
+            anchorEl={profileAnchorEl}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            keepMounted
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+            open={Boolean(profileAnchorEl)}
+            onClose={handleProfileClose}
+          >
+            {!isLoggedIn && (
+              <>
+                <MenuItem onClick={() => navigate("/")}>Login</MenuItem>
+              </>
+            )}
+            {isLoggedIn && (
+              <>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
-            </>
-          )}
+              </>
+            )}
+          </Menu>
         </Toolbar>
       </AppBar>
       {children}
