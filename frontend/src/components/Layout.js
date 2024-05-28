@@ -31,6 +31,7 @@ const Layout = ({ children, setIsLoggedIn }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("token");
     setIsLoggedIn(false);
     navigate("/");
   };

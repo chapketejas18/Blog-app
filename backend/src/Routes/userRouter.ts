@@ -25,7 +25,7 @@ router.get("/healthcheck", (req: Request, res: Response) => {
 
 router.post("/signup", userController.register);
 router.post("/login", userController.login);
-router.get("/blogs", authenticate, blogController.getAllBlogs);
+router.get("/blogs", blogController.getAllBlogs);
 router.post("/createblog", authenticate, blogController.addBlog);
 router
   .route("/blogs/:id")

@@ -36,14 +36,12 @@ export const Blog = ({
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const isLoggedIn = localStorage.getItem("isLoggedIn");
-  const decodedToken = jwtDecode(token);
-  const userid = decodedToken.existingUser.user._id;
+  const decodedToken = token ? jwtDecode(token) : null;
+  const userid = decodedToken ? decodedToken.existingUser.user._id : null;
   const [liked, setLiked] = React.useState(likedBy.includes(userid));
   const [likes, setLikes] = React.useState(likeCount);
-  console.log("::likecount", likeCount);
 
   const deleteRequest = async () => {
-    const token = localStorage.getItem("token");
     const res = await axios
       .delete(`http://localhost:9000/api/blogs/${id}`, {
         headers: {
@@ -78,7 +76,7 @@ export const Blog = ({
         { userid },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: token,
           },
         }
       );
