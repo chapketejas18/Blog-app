@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
-import Layout from "./components/Layout";
 import SignupPage from "./components/SignupPage";
 import { Blogs } from "./components/Blogs";
 import { UserBlogs } from "./components/UserBlogs";

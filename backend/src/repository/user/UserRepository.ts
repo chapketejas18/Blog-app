@@ -12,7 +12,7 @@ class UserRepository {
     return userModel.create(body);
   };
 
-  findUserById = async (id: String) => {
+  findUserById = async (id: string) => {
     return userModel.findById(id);
   };
 
@@ -43,6 +43,8 @@ class UserRepository {
     const email = body.email;
     const user = await userModel.findOne({ email });
     if (!user) {
+      const hashedPassword = await bcrypt.hash(body.password, 10);
+      body.password = hashedPassword;
       return userModel.create(body);
     }
   };
@@ -51,12 +53,15 @@ class UserRepository {
     const email = body.email;
     const user = await userModel.findOne({ email });
     if (!user) {
-      return null;
+      return {
+        error: "This mailId is not registered. Please Register to Login",
+      };
     }
-    if (user.password !== body.password) {
-      return null;
+    const validPassword = await bcrypt.compare(body.password, user.password);
+    if (!validPassword) {
+      return { error: "Incorrect password. Please try again." };
     }
-    return user;
+    return { user };
   };
 }
 

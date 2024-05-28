@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Button, TextField, Container, Typography, Box } from "@mui/material";
 import { Link } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import Layout from "./Layout";
 
 const LoginPage = ({ setIsLoggedIn }) => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState({ email: "", password: "" });
-
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (isLoggedIn === "true") {
@@ -14,51 +13,37 @@ const LoginPage = ({ setIsLoggedIn }) => {
     }
   }, [setIsLoggedIn]);
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .email("Invalid email address")
+      .required("Email is required"),
+    password: Yup.string()
+      .min(7, "Password must be at least 7 characters long")
+      .max(30, "Password must be at most 30 characters long")
+      .matches(/[0-9]/, "Password must contain at least one number")
+      .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .matches(
+        /[@$!%*?&#]/,
+        "Password must contain at least one special character"
+      )
+      .required("Password is required"),
+  });
 
-  const validatePassword = (password) => {
-    return password.length >= 3 && password.length <= 30;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    if (name === "email") {
-      setErrors({
-        ...errors,
-        email: validateEmail(value) ? "" : "Invalid email address",
-      });
-    }
-
-    if (name === "password") {
-      setErrors({
-        ...errors,
-        password: validatePassword(value)
-          ? ""
-          : "Password must be between 3 and 30 characters",
-      });
-    }
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    if (validateEmail(formData.email) && validatePassword(formData.password)) {
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
         const response = await fetch("http://localhost:9000/api/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
+          body: JSON.stringify(values),
         });
-        console.log(response);
 
         if (response.ok) {
           const responseData = await response.json();
@@ -68,15 +53,15 @@ const LoginPage = ({ setIsLoggedIn }) => {
           setIsLoggedIn(true);
         } else {
           const errorData = await response.json();
-          setErrors({ ...errors, form: errorData.message || "Login failed" });
+          setErrors({ form: errorData.message || "Login failed" });
         }
       } catch (error) {
-        setErrors({ ...errors, form: "Login failed. Please try again later." });
+        setErrors({ form: "Login failed. Please try again later." });
+      } finally {
+        setSubmitting(false);
       }
-    } else {
-      setErrors({ ...errors, form: "Please fix the errors above." });
-    }
-  };
+    },
+  });
 
   return (
     <Layout>
@@ -99,20 +84,20 @@ const LoginPage = ({ setIsLoggedIn }) => {
             <Typography variant="h4" align="center" gutterBottom>
               Login
             </Typography>
-            {errors.form && (
+            {formik.errors.form && (
               <Typography
                 variant="body1"
                 align="center"
                 gutterBottom
                 sx={{ color: "red" }}
               >
-                {errors.form}
+                {formik.errors.form}
               </Typography>
             )}
             <Box
               component="form"
               noValidate
-              onSubmit={handleLogin}
+              onSubmit={formik.handleSubmit}
               sx={{ mt: 1 }}
             >
               <TextField
@@ -123,10 +108,11 @@ const LoginPage = ({ setIsLoggedIn }) => {
                 label="Email"
                 name="email"
                 autoFocus
-                value={formData.email}
-                onChange={handleChange}
-                error={!!errors.email}
-                helperText={errors.email}
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.email && Boolean(formik.errors.email)}
+                helperText={formik.touched.email && formik.errors.email}
               />
               <TextField
                 margin="normal"
@@ -136,10 +122,13 @@ const LoginPage = ({ setIsLoggedIn }) => {
                 label="Password"
                 type="password"
                 id="password"
-                value={formData.password}
-                onChange={handleChange}
-                error={!!errors.password}
-                helperText={errors.password}
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={
+                  formik.touched.password && Boolean(formik.errors.password)
+                }
+                helperText={formik.touched.password && formik.errors.password}
               />
               <Button
                 type="submit"
@@ -147,12 +136,7 @@ const LoginPage = ({ setIsLoggedIn }) => {
                 variant="contained"
                 color="primary"
                 sx={{ mt: 3, mb: 2 }}
-                disabled={
-                  !formData.email ||
-                  !formData.password ||
-                  !!errors.email ||
-                  !!errors.password
-                }
+                disabled={formik.isSubmitting}
               >
                 Sign In
               </Button>

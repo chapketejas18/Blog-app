@@ -8,8 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const UserModel_1 = require("./UserModel");
+const bcrypt_1 = __importDefault(require("bcrypt"));
 class UserRepository {
     constructor() {
         this.getAllUsers = () => __awaiter(this, void 0, void 0, function* () {
@@ -37,6 +41,8 @@ class UserRepository {
             const email = body.email;
             const user = yield UserModel_1.userModel.findOne({ email });
             if (!user) {
+                const hashedPassword = yield bcrypt_1.default.hash(body.password, 10);
+                body.password = hashedPassword;
                 return UserModel_1.userModel.create(body);
             }
         });
@@ -44,12 +50,15 @@ class UserRepository {
             const email = body.email;
             const user = yield UserModel_1.userModel.findOne({ email });
             if (!user) {
-                return null;
+                return {
+                    error: "This mailId is not registered. Please Register to Login",
+                };
             }
-            if (user.password !== body.password) {
-                return null;
+            const validPassword = yield bcrypt_1.default.compare(body.password, user.password);
+            if (!validPassword) {
+                return { error: "Incorrect password. Please try again." };
             }
-            return user;
+            return { user };
         });
     }
 }

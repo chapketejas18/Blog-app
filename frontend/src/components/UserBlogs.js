@@ -10,8 +10,8 @@ export const UserBlogs = ({ setIsLoggedIn }) => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
   const decodedToken = jwtDecode(token);
-  const userid = decodedToken.existingUser._id;
-  const username = decodedToken.existingUser.username;
+  const userid = decodedToken.existingUser.user._id;
+  const username = decodedToken.existingUser.user.username;
 
   useEffect(() => {
     const fetchData = async () => {

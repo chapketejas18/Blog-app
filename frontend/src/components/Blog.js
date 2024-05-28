@@ -37,7 +37,7 @@ export const Blog = ({
   const token = localStorage.getItem("token");
   const isLoggedIn = localStorage.getItem("isLoggedIn");
   const decodedToken = jwtDecode(token);
-  const userid = decodedToken.existingUser._id;
+  const userid = decodedToken.existingUser.user._id;
   const [liked, setLiked] = React.useState(likedBy.includes(userid));
   const [likes, setLikes] = React.useState(likeCount);
   console.log("::likecount", likeCount);
@@ -69,6 +69,7 @@ export const Blog = ({
   const handleLike = async () => {
     if (!isLoggedIn) {
       alert("Log in to like the blogs");
+      navigate("/");
       return;
     }
     try {
@@ -133,7 +134,7 @@ export const Blog = ({
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "59vh",
+        minHeight: "75vh",
         padding: 2,
       }}
     >
@@ -176,7 +177,7 @@ export const Blog = ({
             </>
           }
         />
-        <CardMedia component="img" height="194" image={imageURL} />
+        <CardMedia component="img" height="450" image={imageURL} />
         <CardContent>
           <Typography variant="body2" color="text.secondary">
             {expanded ? description : truncateText(description, 150)}

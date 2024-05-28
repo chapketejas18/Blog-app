@@ -66,7 +66,7 @@ export const AddBlog = ({ setIsLoggedIn }) => {
     try {
       const token = localStorage.getItem("token");
       const decodedToken = jwtDecode(token);
-      const userId = decodedToken.existingUser._id;
+      const userId = decodedToken.existingUser.user._id;
       console.log(token);
       const res = await axios.post(
         "http://localhost:9000/api/createblog",

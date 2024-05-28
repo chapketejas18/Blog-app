@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const UserRepository_1 = __importDefault(require("../repository/user/UserRepository"));
-const joi_1 = require("../config/joi");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 class MockDataHandler {
     constructor() {
@@ -30,11 +29,11 @@ class MockDataHandler {
         this.createData = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let body = req.body;
-                const { error } = joi_1.userSchema.validate(body);
-                if (error) {
-                    res.status(400).json({ error: error.details[0].message });
-                    return;
-                }
+                // const { error } = userSchema.validate(body);
+                // if (error) {
+                //   res.status(400).json({ error: error.details[0].message });
+                //   return;
+                // }
                 const userWithBlog = Object.assign(Object.assign({}, body), { blogs: [] });
                 yield UserRepository_1.default.createUser(userWithBlog);
                 res.json({ status: "Created Successfully" });
@@ -78,11 +77,11 @@ class MockDataHandler {
             try {
                 const id = req.params.id;
                 const body = req.body;
-                const { error } = joi_1.userSchema.validate(body);
-                if (error) {
-                    res.status(400).json({ error: error.details[0].message });
-                    return;
-                }
+                // const { error } = userSchema.validate(body);
+                // if (error) {
+                //   res.status(400).json({ error: error.details[0].message });
+                //   return;
+                // }
                 const updatedUser = yield UserRepository_1.default.updateDataById(id, body);
                 if (!updatedUser) {
                     res.status(404).json({ message: "No data found for this ID" });
@@ -102,11 +101,11 @@ class MockDataHandler {
                 if (!body.email || !body.password) {
                     res.status(400).json({ message: "Please provide all fields" });
                 }
-                const { error } = joi_1.userSchema.validate(body);
-                if (error) {
-                    res.status(400).json({ error: error.details[0].message });
-                    return;
-                }
+                // const { error } = userSchema.validate(body);
+                // if (error) {
+                //   res.status(400).json({ error: error.details[0].message });
+                //   return;
+                // }
                 const createdUser = yield UserRepository_1.default.registerUser(body);
                 console.log(":::::createduser", createdUser);
                 if (createdUser) {
@@ -124,15 +123,10 @@ class MockDataHandler {
         this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const body = req.body;
-                if (!body.email || !body.password) {
-                    res.status(400).json({ message: "Please provide all fields" });
-                }
-                const { error } = joi_1.userSchema.validate(body);
-                if (error) {
-                    res.status(400).json({ error: error.details[0].message });
-                    return;
-                }
                 const existingUser = yield UserRepository_1.default.authUsers(body);
+                if (existingUser.error) {
+                    return res.status(400).json({ message: existingUser.error });
+                }
                 if (existingUser) {
                     const token = jsonwebtoken_1.default.sign({ existingUser }, "b44fd2de00412db5ebc7350536b59e86731142f100deef1d486972b9c22e6b11", {
                         expiresIn: "40m",
@@ -141,18 +135,14 @@ class MockDataHandler {
                     res.status(200).json({ token: token, user: existingUser });
                 }
                 else {
-                    res.status(404).json({ message: "User not found" });
+                    res.status(404).json({
+                        message: "This mailId is not registered. Please Register to Login",
+                    });
                 }
             }
             catch (err) {
                 res.status(500).json({ error: "Internal Server Error" });
             }
-        });
-        this.dashboard = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            res.status(200).json({ message: "Dasboard" });
-        });
-        this.page = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            res.status(200).json({ message: "Page" });
         });
     }
 }

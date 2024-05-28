@@ -16,11 +16,11 @@ class MockDataHandler {
   createData = async (req: Request, res: Response): Promise<void> => {
     try {
       let body = req.body;
-      const { error } = userSchema.validate(body);
-      if (error) {
-        res.status(400).json({ error: error.details[0].message });
-        return;
-      }
+      // const { error } = userSchema.validate(body);
+      // if (error) {
+      //   res.status(400).json({ error: error.details[0].message });
+      //   return;
+      // }
       const userWithBlog = { ...body, blogs: [] };
       await UserRepository.createUser(userWithBlog);
       res.json({ status: "Created Successfully" });
@@ -65,11 +65,11 @@ class MockDataHandler {
       const id = req.params.id;
       const body = req.body;
 
-      const { error } = userSchema.validate(body);
-      if (error) {
-        res.status(400).json({ error: error.details[0].message });
-        return;
-      }
+      // const { error } = userSchema.validate(body);
+      // if (error) {
+      //   res.status(400).json({ error: error.details[0].message });
+      //   return;
+      // }
 
       const updatedUser = await UserRepository.updateDataById(id, body);
       if (!updatedUser) {
@@ -90,11 +90,11 @@ class MockDataHandler {
       if (!body.email || !body.password) {
         res.status(400).json({ message: "Please provide all fields" });
       }
-      const { error } = userSchema.validate(body);
-      if (error) {
-        res.status(400).json({ error: error.details[0].message });
-        return;
-      }
+      // const { error } = userSchema.validate(body);
+      // if (error) {
+      //   res.status(400).json({ error: error.details[0].message });
+      //   return;
+      // }
       const createdUser = await UserRepository.registerUser(body);
       console.log(":::::createduser", createdUser);
       if (createdUser) {
@@ -111,15 +111,10 @@ class MockDataHandler {
   login = async (req: Request, res: Response) => {
     try {
       const body = req.body;
-      if (!body.email || !body.password) {
-        res.status(400).json({ message: "Please provide all fields" });
-      }
-      const { error } = userSchema.validate(body);
-      if (error) {
-        res.status(400).json({ error: error.details[0].message });
-        return;
-      }
       const existingUser = await UserRepository.authUsers(body);
+      if (existingUser.error) {
+        return res.status(400).json({ message: existingUser.error });
+      }
       if (existingUser) {
         const token = jwt.sign(
           { existingUser },
@@ -131,19 +126,13 @@ class MockDataHandler {
         console.log(token);
         res.status(200).json({ token: token, user: existingUser });
       } else {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json({
+          message: "This mailId is not registered. Please Register to Login",
+        });
       }
     } catch (err) {
       res.status(500).json({ error: "Internal Server Error" });
     }
-  };
-
-  dashboard = async (req: Request, res: Response) => {
-    res.status(200).json({ message: "Dasboard" });
-  };
-
-  page = async (req: Request, res: Response) => {
-    res.status(200).json({ message: "Page" });
   };
 }
 
