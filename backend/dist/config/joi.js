@@ -8,7 +8,7 @@ const joi_1 = __importDefault(require("joi"));
 exports.userSchema = joi_1.default.object({
     username: joi_1.default.string(),
     email: joi_1.default.string().email(),
-    password: joi_1.default.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
+    password: joi_1.default.string().pattern(/^(?=.*[0-9])(?=.*[A-Z])(?=.*[@$!%*?&#])[a-zA-Z0-9@$!%*?&#]{7,30}$/),
 });
 exports.blogSchema = joi_1.default.object({
     title: joi_1.default.string(),

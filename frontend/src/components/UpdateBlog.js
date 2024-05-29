@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Button, InputLabel, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -32,11 +32,50 @@ export const UpdateBlog = ({ setIsLoggedIn }) => {
     description: initialDescription,
   });
 
+  const [isChanged, setIsChanged] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
+
+  useEffect(() => {
+    const isTitleChanged = inputs.title !== initialTitle;
+    const isDescriptionChanged = inputs.description !== initialDescription;
+    setIsChanged(isTitleChanged || isDescriptionChanged);
+  }, [inputs, initialTitle, initialDescription]);
+
   const handleChange = (e) => {
     setInputs((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const countWords = (str) => {
+    return str.trim().split(/\s+/).length;
+  };
+
+  const handleDescriptionChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "description") {
+      const words = countWords(value);
+      if (words > 200) {
+        const trimmedDescription = value.split(/\s+/).slice(0, 200).join(" ");
+        setInputs((prevState) => ({
+          ...prevState,
+          [name]: trimmedDescription,
+        }));
+        setWordCount(200);
+      } else {
+        setInputs((prevState) => ({
+          ...prevState,
+          [name]: value,
+        }));
+        setWordCount(words);
+      }
+    } else {
+      setInputs((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -101,11 +140,18 @@ export const UpdateBlog = ({ setIsLoggedIn }) => {
           <ResizableTextarea
             className={classes.font}
             name="description"
-            onChange={handleChange}
+            onChange={handleDescriptionChange}
             value={inputs.description}
           />
+          <Typography variant="body2" color="textSecondary">
+            {wordCount} / 200 words
+          </Typography>
           <Box display="flex" justifyContent="center">
-            <Button sx={{ mt: 5, width: 200 }} type="submit">
+            <Button
+              sx={{ mt: 5, width: 200 }}
+              type="submit"
+              disabled={!isChanged}
+            >
               Submit
             </Button>
           </Box>

@@ -39,7 +39,14 @@ class UserRepository {
         });
         this.registerUser = (body) => __awaiter(this, void 0, void 0, function* () {
             const email = body.email;
+            const username = body.username;
             const user = yield UserModel_1.userModel.findOne({ email });
+            const name = yield UserModel_1.userModel.findOne({ username });
+            if (name) {
+                return {
+                    error: "Username is already in use. Please use different username.",
+                };
+            }
             if (!user) {
                 const hashedPassword = yield bcrypt_1.default.hash(body.password, 10);
                 body.password = hashedPassword;

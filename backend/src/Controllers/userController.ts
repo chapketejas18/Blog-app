@@ -16,11 +16,11 @@ class MockDataHandler {
   createData = async (req: Request, res: Response): Promise<void> => {
     try {
       let body = req.body;
-      // const { error } = userSchema.validate(body);
-      // if (error) {
-      //   res.status(400).json({ error: error.details[0].message });
-      //   return;
-      // }
+      const { error } = userSchema.validate(body);
+      if (error) {
+        res.status(400).json({ error: error.details[0].message });
+        return;
+      }
       const userWithBlog = { ...body, blogs: [] };
       await UserRepository.createUser(userWithBlog);
       res.json({ status: "Created Successfully" });
@@ -65,11 +65,11 @@ class MockDataHandler {
       const id = req.params.id;
       const body = req.body;
 
-      // const { error } = userSchema.validate(body);
-      // if (error) {
-      //   res.status(400).json({ error: error.details[0].message });
-      //   return;
-      // }
+      const { error } = userSchema.validate(body);
+      if (error) {
+        res.status(400).json({ error: error.details[0].message });
+        return;
+      }
 
       const updatedUser = await UserRepository.updateDataById(id, body);
       if (!updatedUser) {
@@ -86,17 +86,15 @@ class MockDataHandler {
   register = async (req: Request, res: Response) => {
     try {
       const body = req.body;
-      console.log("::::body", body);
-      if (!body.email || !body.password) {
-        res.status(400).json({ message: "Please provide all fields" });
+      const { error } = userSchema.validate(body);
+      if (error) {
+        res.status(400).json({ error: error.details[0].message });
+        return;
       }
-      // const { error } = userSchema.validate(body);
-      // if (error) {
-      //   res.status(400).json({ error: error.details[0].message });
-      //   return;
-      // }
-      const createdUser = await UserRepository.registerUser(body);
-      console.log(":::::createduser", createdUser);
+      const createdUser: any = await UserRepository.registerUser(body);
+      if (createdUser.error) {
+        return res.status(400).json({ message: createdUser.error });
+      }
       if (createdUser) {
         res.status(200).json({ message: "User Signed up Successfully" });
       } else {

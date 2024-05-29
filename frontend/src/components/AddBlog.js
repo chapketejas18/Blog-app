@@ -25,17 +25,41 @@ export const AddBlog = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
   const [imgurl, setImageurl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
   const [inputs, setInputs] = useState({
     title: "",
     description: "",
     imageURL: "",
   });
 
+  const countWords = (str) => {
+    return str.trim().split(/\s+/).length;
+  };
+
   const handleChange = (e) => {
-    setInputs((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    if (name === "description") {
+      const words = countWords(value);
+      if (words > 200) {
+        const trimmedDescription = value.split(/\s+/).slice(0, 200).join(" ");
+        setInputs((prevState) => ({
+          ...prevState,
+          [name]: trimmedDescription,
+        }));
+        setWordCount(200);
+      } else {
+        setInputs((prevState) => ({
+          ...prevState,
+          [name]: value,
+        }));
+        setWordCount(words);
+      }
+    } else {
+      setInputs((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
   };
 
   const handleFileUpload = (event) => {
@@ -86,13 +110,20 @@ export const AddBlog = ({ setIsLoggedIn }) => {
       navigate("/blogs");
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        alert("Please log in again.");
         setIsLoggedIn(false);
         localStorage.setItem("isLoggedIn", "false");
         localStorage.removeItem("token");
         navigate("/");
       } else {
         console.error("Error adding blog:", error);
+        if (imgurl) {
+          const storageRef = firebase.storage().refFromURL(imgurl);
+          try {
+            await storageRef.delete();
+          } catch (deleteError) {
+            console.error("Error deleting image from Firebase:", deleteError);
+          }
+        }
       }
     }
   };
@@ -139,6 +170,9 @@ export const AddBlog = ({ setIsLoggedIn }) => {
             onChange={handleChange}
             value={inputs.description}
           />
+          <Typography variant="body2" color="textSecondary">
+            {wordCount} / 200 words
+          </Typography>
           <InputLabel className={classes.font} sx={labelStyles}>
             Image
           </InputLabel>

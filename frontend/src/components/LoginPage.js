@@ -136,10 +136,17 @@ const LoginPage = ({ setIsLoggedIn }) => {
                 variant="contained"
                 color="primary"
                 sx={{ mt: 3, mb: 2 }}
-                disabled={formik.isSubmitting}
+                disabled={
+                  formik.isSubmitting ||
+                  !formik.dirty ||
+                  !formik.isValid ||
+                  !formik.values.email ||
+                  !formik.values.password
+                }
               >
-                Sign In
+                Log In
               </Button>
+
               <Typography align="center" sx={{ mt: 2 }}>
                 Don't have an account? <Link to="/signup">Sign Up</Link>
               </Typography>

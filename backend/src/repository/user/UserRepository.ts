@@ -41,7 +41,14 @@ class UserRepository {
 
   registerUser = async (body: IUser) => {
     const email = body.email;
+    const username = body.username;
     const user = await userModel.findOne({ email });
+    const name = await userModel.findOne({ username });
+    if (name) {
+      return {
+        error: "Username is already in use. Please use different username.",
+      };
+    }
     if (!user) {
       const hashedPassword = await bcrypt.hash(body.password, 10);
       body.password = hashedPassword;

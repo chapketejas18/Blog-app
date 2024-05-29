@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const UserRepository_1 = __importDefault(require("../repository/user/UserRepository"));
+const joi_1 = require("../config/joi");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 class MockDataHandler {
     constructor() {
@@ -29,11 +30,11 @@ class MockDataHandler {
         this.createData = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let body = req.body;
-                // const { error } = userSchema.validate(body);
-                // if (error) {
-                //   res.status(400).json({ error: error.details[0].message });
-                //   return;
-                // }
+                const { error } = joi_1.userSchema.validate(body);
+                if (error) {
+                    res.status(400).json({ error: error.details[0].message });
+                    return;
+                }
                 const userWithBlog = Object.assign(Object.assign({}, body), { blogs: [] });
                 yield UserRepository_1.default.createUser(userWithBlog);
                 res.json({ status: "Created Successfully" });
@@ -77,11 +78,11 @@ class MockDataHandler {
             try {
                 const id = req.params.id;
                 const body = req.body;
-                // const { error } = userSchema.validate(body);
-                // if (error) {
-                //   res.status(400).json({ error: error.details[0].message });
-                //   return;
-                // }
+                const { error } = joi_1.userSchema.validate(body);
+                if (error) {
+                    res.status(400).json({ error: error.details[0].message });
+                    return;
+                }
                 const updatedUser = yield UserRepository_1.default.updateDataById(id, body);
                 if (!updatedUser) {
                     res.status(404).json({ message: "No data found for this ID" });
@@ -97,17 +98,15 @@ class MockDataHandler {
         this.register = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const body = req.body;
-                console.log("::::body", body);
-                if (!body.email || !body.password) {
-                    res.status(400).json({ message: "Please provide all fields" });
+                const { error } = joi_1.userSchema.validate(body);
+                if (error) {
+                    res.status(400).json({ error: error.details[0].message });
+                    return;
                 }
-                // const { error } = userSchema.validate(body);
-                // if (error) {
-                //   res.status(400).json({ error: error.details[0].message });
-                //   return;
-                // }
                 const createdUser = yield UserRepository_1.default.registerUser(body);
-                console.log(":::::createduser", createdUser);
+                if (createdUser.error) {
+                    return res.status(400).json({ message: createdUser.error });
+                }
                 if (createdUser) {
                     res.status(200).json({ message: "User Signed up Successfully" });
                 }

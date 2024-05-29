@@ -132,12 +132,15 @@ const SignupPage = () => {
                   type="password"
                   id="password"
                   helperText={
-                    touched.password && errors.password ? (
-                      <ErrorMessage name="password" />
-                    ) : null
+                    <>
+                      {touched.password && errors.password ? (
+                        <ErrorMessage name="password" />
+                      ) : null}
+                    </>
                   }
                   error={touched.password && !!errors.password}
                 />
+
                 <Field
                   as={TextField}
                   margin="normal"
@@ -148,9 +151,16 @@ const SignupPage = () => {
                   type="password"
                   id="confirmPassword"
                   helperText={
-                    touched.confirmPassword && errors.confirmPassword ? (
-                      <ErrorMessage name="confirmPassword" />
-                    ) : null
+                    <>
+                      {touched.confirmPassword && errors.confirmPassword ? (
+                        <ErrorMessage name="confirmPassword" />
+                      ) : null}
+                      <ul>
+                        <li>At least one capital letter</li>
+                        <li>Between 7 and 30 characters long</li>
+                        <li>At least one special character</li>
+                      </ul>
+                    </>
                   }
                   error={touched.confirmPassword && !!errors.confirmPassword}
                 />
