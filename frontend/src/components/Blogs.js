@@ -1,38 +1,125 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { Blog } from "./Blog";
+import { Link } from "react-router-dom";
 import Layout from "./Layout";
 
 export const Blogs = ({ setIsLoggedIn }) => {
   const [blogs, setBlogs] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://localhost:9000/api/blogs");
-        setBlogs(response.data);
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:9000/api/blogs?page=${page}&limit=2`
+      );
+      const newBlogs = response.data;
+
+      setBlogs((prevBlogs) => [...prevBlogs, ...newBlogs]);
+      setPage((prevPage) => prevPage + 1);
+
+      if (newBlogs.length < 2) {
+        setHasMore(false);
       }
-    };
+
+      console.log("Fetched blogs:", newBlogs);
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+      setHasMore(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
+
+  const noBlogsMessageStyle = {
+    textAlign: "center",
+    marginTop: "50px",
+  };
+
+  const headingStyle = {
+    fontSize: "2em",
+    color: "#333",
+  };
+
+  const paragraphStyle = {
+    fontSize: "1.2em",
+    color: "#666",
+  };
+
+  const linkStyle = {
+    display: "inline-block",
+    marginTop: "10px",
+    padding: "10px 20px",
+    fontSize: "1em",
+    color: "#fff",
+    backgroundColor: "#007bff",
+    textDecoration: "none",
+    borderRadius: "5px",
+    transition: "background-color 0.3s ease",
+  };
+
+  const linkHoverStyle = {
+    backgroundColor: "#0056b3",
+  };
+
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
 
   return (
     <div>
       <Layout setIsLoggedIn={setIsLoggedIn} />
-      {blogs.map((blog, index) => (
-        <Blog
-          key={index}
-          id={blog._id}
-          title={blog.title}
-          description={blog.description}
-          imageURL={blog.imageurl}
-          userName={blog.author}
-          createdOn={blog.createdOn}
-          likedBy={blog.likedBy}
-          likeCount={blog.likecount}
-        />
-      ))}
+      {blogs.length === 0 && !hasMore && (
+        <div style={noBlogsMessageStyle}>
+          <h1 style={headingStyle}>No blogs created posted by anyone!!</h1>
+          {isLoggedIn && (
+            <>
+              <p style={paragraphStyle}>
+                Here is the link to give first contribution to this application
+              </p>
+              <Link
+                to="/addblog"
+                style={linkStyle}
+                onMouseEnter={(e) =>
+                  (e.target.style.backgroundColor =
+                    linkHoverStyle.backgroundColor)
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.backgroundColor = linkStyle.backgroundColor)
+                }
+              >
+                Create Blog
+              </Link>
+            </>
+          )}
+        </div>
+      )}
+      <InfiniteScroll
+        dataLength={blogs.length}
+        next={fetchData}
+        hasMore={hasMore}
+        loader={
+          <center>
+            <h4>Loading...</h4>
+          </center>
+        }
+      >
+        {blogs.map((blog, index) => (
+          <Blog
+            key={index}
+            id={blog._id}
+            title={blog.title}
+            description={blog.description}
+            imageURL={blog.imageurl}
+            userName={blog.author}
+            createdOn={blog.createdOn}
+            likedBy={blog.likedBy}
+            likeCount={blog.likecount}
+          />
+        ))}
+      </InfiniteScroll>
     </div>
   );
 };

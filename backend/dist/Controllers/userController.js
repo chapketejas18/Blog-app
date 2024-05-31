@@ -15,6 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const UserRepository_1 = __importDefault(require("../repository/user/UserRepository"));
 const joi_1 = require("../config/joi");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const nodemailer_1 = __importDefault(require("nodemailer"));
+const transporter = nodemailer_1.default.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: "tejaschapke21@gmail.com",
+        pass: "oapv nwih elpz yzrj",
+    },
+});
 class MockDataHandler {
     constructor() {
         this.getData = (request, response) => __awaiter(this, void 0, void 0, function* () {
@@ -98,6 +109,7 @@ class MockDataHandler {
         this.register = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const body = req.body;
+                const mail = body.email;
                 const { error } = joi_1.userSchema.validate(body);
                 if (error) {
                     res.status(400).json({ error: error.details[0].message });
@@ -108,6 +120,13 @@ class MockDataHandler {
                     return res.status(400).json({ message: createdUser.error });
                 }
                 if (createdUser) {
+                    const mailOptions = {
+                        from: "tejaschapke21@gmail.com",
+                        to: mail,
+                        subject: "Signup Successful",
+                        text: `Congratulations! You have successfully signed up to BloggerApp. Click here to login: http://localhost:3000`,
+                    };
+                    yield transporter.sendMail(mailOptions);
                     res.status(200).json({ message: "User Signed up Successfully" });
                 }
                 else {
@@ -130,7 +149,6 @@ class MockDataHandler {
                     const token = jsonwebtoken_1.default.sign({ existingUser }, "b44fd2de00412db5ebc7350536b59e86731142f100deef1d486972b9c22e6b11", {
                         expiresIn: "40m",
                     });
-                    console.log(token);
                     res.status(200).json({ token: token, user: existingUser });
                 }
                 else {

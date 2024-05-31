@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
 import BlogRepository from "../repository/blog/BlogRepository";
 import UserRepository from "../repository/user/UserRepository";
+import firebase from "firebase/compat/app";
+import "firebase/compat/storage";
 class blogController {
   getAllBlogs = async (req: Request, res: Response) => {
     try {
-      const blogs = await BlogRepository.getBlogs();
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 2;
+      const blogs = await BlogRepository.getBlogs(page, limit);
       res.json(blogs);
     } catch (err) {
       const typedError = err;
@@ -14,7 +18,6 @@ class blogController {
 
   addBlog = async (req: Request, res: Response) => {
     const { title, description, imageurl, author } = req.body;
-    console.log("::::::imageurl", imageurl);
     let existingUser;
 
     try {
@@ -88,6 +91,12 @@ class blogController {
         res.status(404).json({ message: "No Blog found for this ID" });
         return;
       }
+      const imageUrl = deletedBlog.imageurl;
+      if (imageUrl) {
+        const storageRef = firebase.storage().refFromURL(imageUrl);
+        await storageRef.delete();
+        console.log("Image deleted from Firebase");
+      }
       await UserRepository.deleteBlogOfUser(deletedBlog);
       res.json({ status: "Deleted Successfully" });
     } catch (err) {
@@ -110,7 +119,9 @@ class blogController {
         return;
       }
       const stringIds = blogIds.map((id) => id.toString());
-      const blogs = await BlogRepository.findBlogsByIds(stringIds);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 2;
+      const blogs = await BlogRepository.findBlogsByIds(stringIds, page, limit);
       res.json(blogs);
     } catch (err) {
       console.error("Error:", err);

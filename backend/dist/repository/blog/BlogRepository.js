@@ -13,8 +13,9 @@ const UserModel_1 = require("../user/UserModel");
 const BlogModel_1 = require("./BlogModel");
 class BlogRepository {
     constructor() {
-        this.getBlogs = () => __awaiter(this, void 0, void 0, function* () {
-            return BlogModel_1.blogModel.find();
+        this.getBlogs = (page, limit) => __awaiter(this, void 0, void 0, function* () {
+            const skip = (page - 1) * limit;
+            return BlogModel_1.blogModel.find().sort({ createdOn: -1 }).skip(skip).limit(limit);
         });
         this.createBlog = (title, description, imageurl, author) => __awaiter(this, void 0, void 0, function* () {
             const user = yield UserModel_1.userModel.findById(author);
@@ -44,8 +45,13 @@ class BlogRepository {
         this.deleteBlog = (id) => __awaiter(this, void 0, void 0, function* () {
             return BlogModel_1.blogModel.findByIdAndDelete(id);
         });
-        this.findBlogsByIds = (ids) => __awaiter(this, void 0, void 0, function* () {
-            return BlogModel_1.blogModel.find({ _id: { $in: ids } });
+        this.findBlogsByIds = (ids, page, limit) => __awaiter(this, void 0, void 0, function* () {
+            const skip = (page - 1) * limit;
+            return BlogModel_1.blogModel
+                .find({ _id: { $in: ids } })
+                .sort({ createdOn: -1 })
+                .skip(skip)
+                .limit(limit);
         });
         this.likeBlogById = (id, userId) => __awaiter(this, void 0, void 0, function* () {
             const blog = yield BlogModel_1.blogModel.findById(id);
@@ -56,13 +62,13 @@ class BlogRepository {
             if (userIndex === -1) {
                 yield BlogModel_1.blogModel.findByIdAndUpdate(id, {
                     $push: { likedBy: userId },
-                    $inc: { likecount: 1 }
+                    $inc: { likecount: 1 },
                 }, { new: true });
             }
             else {
                 yield BlogModel_1.blogModel.findByIdAndUpdate(id, {
                     $pull: { likedBy: userId },
-                    $inc: { likecount: -1 }
+                    $inc: { likecount: -1 },
                 }, { new: true });
             }
             return BlogModel_1.blogModel.findById(id);

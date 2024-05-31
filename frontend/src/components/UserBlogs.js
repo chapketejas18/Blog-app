@@ -4,43 +4,67 @@ import { Blog } from "./Blog";
 import Layout from "./Layout";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export const UserBlogs = ({ setIsLoggedIn }) => {
   const [blogs, setBlogs] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  const decodedToken = jwtDecode(token);
-  const userid = decodedToken.existingUser.user._id;
-  const username = decodedToken.existingUser.user.username;
+
+  let decodedToken;
+  let userid;
+  let username;
+
+  try {
+    decodedToken = jwtDecode(token);
+    userid = decodedToken.existingUser.user._id;
+    username = decodedToken.existingUser.user.username;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    setIsLoggedIn(false);
+    localStorage.setItem("isLoggedIn", "false");
+    localStorage.removeItem("token");
+    navigate("/");
+  }
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:9000/api/blogsof/${userid}?page=${page}&limit=2`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      const newBlogs = response.data;
+      setBlogs((prevBlogs) => [...prevBlogs, ...newBlogs]);
+      setPage((prevPage) => prevPage + 1);
+
+      if (newBlogs.length < 2) {
+        setHasMore(false);
+      }
+
+      console.log("Fetched blogs:", newBlogs);
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        alert("Please log in again.");
+        setIsLoggedIn(false);
+        localStorage.setItem("isLoggedIn", "false");
+        localStorage.removeItem("token");
+        navigate("/");
+      } else {
+        console.error("Error fetching blogs:", error);
+      }
+      setHasMore(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(
-          `http://localhost:9000/api/blogsof/${userid}`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-        setBlogs(response.data);
-      } catch (error) {
-        if (error.response && error.response.status === 401) {
-          alert("Please log in again.");
-          setIsLoggedIn(false);
-          localStorage.setItem("isLoggedIn", "false");
-          localStorage.removeItem("token");
-          navigate("/");
-        } else {
-          console.error("Error adding blog:", error);
-        }
-      }
-    };
-
     fetchData();
-  }, [userid]);
+  }, []);
 
   const noBlogsMessageStyle = {
     textAlign: "center",
@@ -76,6 +100,31 @@ export const UserBlogs = ({ setIsLoggedIn }) => {
   return (
     <div>
       <Layout setIsLoggedIn={setIsLoggedIn} />
+      <InfiniteScroll
+        dataLength={blogs.length}
+        next={fetchData}
+        hasMore={hasMore}
+        loader={
+          <center>
+            <h4>Loading...</h4>
+          </center>
+        }
+      >
+        {blogs.map((blog, index) => (
+          <Blog
+            key={index}
+            id={blog._id}
+            title={blog.title}
+            description={blog.description}
+            imageURL={blog.imageurl}
+            userName={username}
+            isUserBlog={blog.author === username}
+            createdOn={blog.createdOn}
+            likedBy={blog.likedBy}
+            likeCount={blog.likecount}
+          />
+        ))}
+      </InfiniteScroll>
       {blogs.length === 0 && (
         <div style={noBlogsMessageStyle}>
           <h1 style={headingStyle}>No blogs created by you!!</h1>
@@ -94,20 +143,6 @@ export const UserBlogs = ({ setIsLoggedIn }) => {
           </Link>
         </div>
       )}
-      {blogs.map((blog, index) => (
-        <Blog
-          key={index}
-          id={blog._id}
-          title={blog.title}
-          description={blog.description}
-          imageURL={blog.imageurl}
-          userName={username}
-          isUserBlog={blog.author === username}
-          createdOn={blog.createdOn}
-          likedBy={blog.likedBy}
-          likeCount={blog.likecount}
-        />
-      ))}
     </div>
   );
 };

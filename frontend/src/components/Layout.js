@@ -83,12 +83,8 @@ const Layout = ({ children, setIsLoggedIn }) => {
               onChange={(e, val) => setValue(val)}
             >
               <Tab LinkComponent={Link} to="/blogs" label="All Blogs" />
-              {isLoggedIn && (
-                <>
-                  <Tab LinkComponent={Link} to="/myblogs" label="My Blogs" />
-                  <Tab LinkComponent={Link} to="/addblog" label="Add Blog" />
-                </>
-              )}
+              <Tab LinkComponent={Link} to="/myblogs" label="My Blogs" />
+              <Tab LinkComponent={Link} to="/addblog" label="Add Blog" />
             </Tabs>
           </Box>
           <IconButton

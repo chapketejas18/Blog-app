@@ -2,6 +2,19 @@ import { Request, Response } from "express";
 import UserRepository from "../repository/user/UserRepository";
 import { userSchema } from "../config/joi";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: "tejaschapke21@gmail.com",
+    pass: "oapv nwih elpz yzrj",
+  },
+});
+
 class MockDataHandler {
   getData = async (request: Request, response: Response) => {
     try {
@@ -86,6 +99,7 @@ class MockDataHandler {
   register = async (req: Request, res: Response) => {
     try {
       const body = req.body;
+      const mail = body.email;
       const { error } = userSchema.validate(body);
       if (error) {
         res.status(400).json({ error: error.details[0].message });
@@ -96,6 +110,13 @@ class MockDataHandler {
         return res.status(400).json({ message: createdUser.error });
       }
       if (createdUser) {
+        const mailOptions = {
+          from: "tejaschapke21@gmail.com",
+          to: mail,
+          subject: "Signup Successful",
+          text: `Congratulations! You have successfully signed up to BloggerApp. Click here to login: http://localhost:3000`,
+        };
+        await transporter.sendMail(mailOptions);
         res.status(200).json({ message: "User Signed up Successfully" });
       } else {
         res.status(404).json({ message: "User already exists" });
@@ -121,7 +142,6 @@ class MockDataHandler {
             expiresIn: "40m",
           }
         );
-        console.log(token);
         res.status(200).json({ token: token, user: existingUser });
       } else {
         res.status(404).json({

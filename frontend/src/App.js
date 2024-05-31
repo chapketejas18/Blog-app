@@ -8,7 +8,7 @@ import { AddBlog } from "./components/AddBlog";
 import { UpdateBlog } from "./components/UpdateBlog";
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("isLoggedIn");
@@ -16,6 +16,9 @@ const App = () => {
   }, []);
 
   const ProtectedRoute = ({ element }) => {
+    if (isLoggedIn === null) {
+      return element;
+    }
     return isLoggedIn ? element : <Navigate to="/" replace />;
   };
 

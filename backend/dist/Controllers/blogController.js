@@ -14,11 +14,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const BlogRepository_1 = __importDefault(require("../repository/blog/BlogRepository"));
 const UserRepository_1 = __importDefault(require("../repository/user/UserRepository"));
+const app_1 = __importDefault(require("firebase/compat/app"));
+require("firebase/compat/storage");
 class blogController {
     constructor() {
         this.getAllBlogs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const blogs = yield BlogRepository_1.default.getBlogs();
+                const page = parseInt(req.query.page) || 1;
+                const limit = parseInt(req.query.limit) || 2;
+                const blogs = yield BlogRepository_1.default.getBlogs(page, limit);
                 res.json(blogs);
             }
             catch (err) {
@@ -28,7 +32,6 @@ class blogController {
         });
         this.addBlog = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { title, description, imageurl, author } = req.body;
-            console.log("::::::imageurl", imageurl);
             let existingUser;
             try {
                 existingUser = yield UserRepository_1.default.findUserById(author);
@@ -90,6 +93,12 @@ class blogController {
                     res.status(404).json({ message: "No Blog found for this ID" });
                     return;
                 }
+                const imageUrl = deletedBlog.imageurl;
+                if (imageUrl) {
+                    const storageRef = app_1.default.storage().refFromURL(imageUrl);
+                    yield storageRef.delete();
+                    console.log("Image deleted from Firebase");
+                }
                 yield UserRepository_1.default.deleteBlogOfUser(deletedBlog);
                 res.json({ status: "Deleted Successfully" });
             }
@@ -112,7 +121,9 @@ class blogController {
                     return;
                 }
                 const stringIds = blogIds.map((id) => id.toString());
-                const blogs = yield BlogRepository_1.default.findBlogsByIds(stringIds);
+                const page = parseInt(req.query.page) || 1;
+                const limit = parseInt(req.query.limit) || 2;
+                const blogs = yield BlogRepository_1.default.findBlogsByIds(stringIds, page, limit);
                 res.json(blogs);
             }
             catch (err) {

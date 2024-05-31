@@ -1,11 +1,11 @@
 import { userModel } from "../user/UserModel";
 import { blogModel } from "./BlogModel";
 import { IBlog } from "./IBlog";
-import { Request, Response } from "express";
 
 class BlogRepository {
-  getBlogs = async () => {
-    return blogModel.find();
+  getBlogs = async (page: number, limit: number) => {
+    const skip = (page - 1) * limit;
+    return blogModel.find().sort({ createdOn: -1 }).skip(skip).limit(limit);
   };
 
   createBlog = async (
@@ -23,7 +23,7 @@ class BlogRepository {
       description,
       imageurl,
       author: user.username,
-      authorid : author,
+      authorid: author,
     };
     return await blogModel.create(blog);
   };
@@ -50,8 +50,17 @@ class BlogRepository {
     return blogModel.findByIdAndDelete(id);
   };
 
-  findBlogsByIds = async (ids: string[]): Promise<IBlog[]> => {
-    return blogModel.find({ _id: { $in: ids } });
+  findBlogsByIds = async (
+    ids: string[],
+    page: number,
+    limit: number
+  ): Promise<IBlog[]> => {
+    const skip = (page - 1) * limit;
+    return blogModel
+      .find({ _id: { $in: ids } })
+      .sort({ createdOn: -1 })
+      .skip(skip)
+      .limit(limit);
   };
 
   likeBlogById = async (id: string, userId: string) => {
@@ -67,7 +76,7 @@ class BlogRepository {
         id,
         {
           $push: { likedBy: userId },
-          $inc: { likecount: 1 }
+          $inc: { likecount: 1 },
         },
         { new: true }
       );
@@ -76,14 +85,13 @@ class BlogRepository {
         id,
         {
           $pull: { likedBy: userId },
-          $inc: { likecount: -1 }
+          $inc: { likecount: -1 },
         },
         { new: true }
       );
     }
     return blogModel.findById(id);
   };
-  
 }
 
 export default new BlogRepository();
