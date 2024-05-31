@@ -132,7 +132,7 @@ class MockDataHandler {
       const body = req.body;
       const existingUser = await UserRepository.authUsers(body);
       if (existingUser.error) {
-        return res.status(400).json({ message: existingUser.error });
+        return res.status(401).json({ message: existingUser.error });
       }
       if (existingUser) {
         const token = jwt.sign(

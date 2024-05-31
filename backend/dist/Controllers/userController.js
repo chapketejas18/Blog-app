@@ -143,7 +143,7 @@ class MockDataHandler {
                 const body = req.body;
                 const existingUser = yield UserRepository_1.default.authUsers(body);
                 if (existingUser.error) {
-                    return res.status(400).json({ message: existingUser.error });
+                    return res.status(401).json({ message: existingUser.error });
                 }
                 if (existingUser) {
                     const token = jsonwebtoken_1.default.sign({ existingUser }, "b44fd2de00412db5ebc7350536b59e86731142f100deef1d486972b9c22e6b11", {
