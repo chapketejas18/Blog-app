@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Box, Button, InputLabel, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useStyles } from "./utils";
 import Layout from "./Layout";
 import { styled } from "@mui/system";
+import AuthContext from "./AuthContext";
 
 const labelStyles = { mb: 1, mt: 2, fontSize: "24px", fontWeight: "bold" };
 
@@ -17,7 +18,8 @@ const ResizableTextarea = styled("textarea")({
   fontSize: "18px",
 });
 
-export const UpdateBlog = ({ setIsLoggedIn }) => {
+export const UpdateBlog = () => {
+  const { setIsLoggedIn } = useContext(AuthContext);
   const classes = useStyles();
   const navigate = useNavigate();
   const location = useLocation();

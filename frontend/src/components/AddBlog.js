@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Box, Button, InputLabel, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import Layout from "./Layout";
 import { styled } from "@mui/system";
 import firebase from "firebase/compat/app";
 import "firebase/compat/storage";
+import AuthContext from "./AuthContext";
 
 const labelStyles = { mb: 1, mt: 2, fontSize: "24px", fontWeight: "bold" };
 
@@ -20,7 +21,8 @@ const ResizableTextarea = styled("textarea")({
   fontSize: "18px",
 });
 
-export const AddBlog = ({ setIsLoggedIn }) => {
+export const AddBlog = () => {
+  const { setIsLoggedIn } = useContext(AuthContext);
   const classes = useStyles();
   const navigate = useNavigate();
   const [imgurl, setImageurl] = useState("");

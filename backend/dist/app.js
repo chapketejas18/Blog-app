@@ -34,7 +34,6 @@ const firebaseConfig = {
     appId: "1:911912315585:web:9f2c8a7e77a1a8610c4240",
 };
 app_1.default.initializeApp(firebaseConfig);
-// app.use(authenticate);
 app.use("/api", userRouter_1.default);
 app.use(errorHandler_1.default);
 app.listen(PORT, () => {

@@ -1,11 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Button, TextField, Container, Typography, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Layout from "./Layout";
+import AuthContext from "./AuthContext";
 
-const LoginPage = ({ setIsLoggedIn }) => {
+const LoginPage = () => {
+  const { setIsLoggedIn } = useContext(AuthContext);
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (isLoggedIn === "true") {

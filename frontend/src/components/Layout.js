@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   AppBar,
   Box,
@@ -12,8 +12,10 @@ import {
 } from "@mui/material";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import AuthContext from "./AuthContext";
 
-const Layout = ({ children, setIsLoggedIn }) => {
+const Layout = ({ children }) => {
+  const { setIsLoggedIn } = useContext(AuthContext);
   const [value, setValue] = useState(0);
   const [title, setTitle] = useState("Blogs");
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);

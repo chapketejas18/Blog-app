@@ -1,7 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
 import userRouter from "./Routes/userRouter";
-import authenticate from "./Middleware/authMiddleware";
 import logRequest from "./Middleware/logRequest";
 import errorHandler from "./Middleware/errorHandler";
 import limiter from "./Middleware/requestLimiter";
@@ -35,7 +34,6 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-// app.use(authenticate);
 app.use("/api", userRouter);
 app.use(errorHandler);
 

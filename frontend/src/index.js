@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import firebase from "firebase/compat/app";
+import { AuthProvider } from "./components/AuthContext";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC7DLM6rspr6JgoooPkTE1Zb2QZXdcjxQo",
@@ -17,6 +18,8 @@ firebase.initializeApp(firebaseConfig);
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </>
 );

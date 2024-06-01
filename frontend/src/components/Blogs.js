@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Blog } from "./Blog";
 import { Link } from "react-router-dom";
 import Layout from "./Layout";
+import AuthContext from "./AuthContext";
 
-export const Blogs = ({ setIsLoggedIn }) => {
+export const Blogs = () => {
+  const { setIsLoggedIn } = useContext(AuthContext);
   const [blogs, setBlogs] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
