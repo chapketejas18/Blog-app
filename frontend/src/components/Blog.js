@@ -175,10 +175,15 @@ export const Blog = ({
             </>
           }
         />
-        <CardMedia component="img" height="450" image={imageURL} />
+        <CardMedia
+          component="img"
+          height="450"
+          image={imageURL}
+          sx={{ objectFit: "contain" }} // Updated this line to ensure proper image fitting
+        />
         <CardContent>
           <Typography variant="body2" color="text.secondary">
-            {expanded ? description : truncateText(description, 150)}
+            {expanded ? description : truncateText(description, 140)}
             {description.length > 150 && (
               <Typography
                 variant="body2"
