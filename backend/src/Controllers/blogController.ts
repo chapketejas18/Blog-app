@@ -18,15 +18,6 @@ class blogController {
 
   addBlog = async (req: Request, res: Response) => {
     const { title, description, imageurl, author } = req.body;
-    let existingUser;
-
-    try {
-      existingUser = await UserRepository.findUserById(author);
-    } catch {}
-
-    if (!existingUser) {
-      return res.status(400).json({ message: "User not found for this id" });
-    }
     try {
       const blog = await BlogRepository.createBlog(
         title,
@@ -37,7 +28,7 @@ class blogController {
       const blogId = blog.id;
       const updatedBlog = await UserRepository.updateUserByBlog(author, blogId);
       if (!updatedBlog) {
-        res.status(400).json({ message: "Error while creating data" });
+        return res.status(400).json({ message: "Error while creating data" });
       }
       res.status(200).json({ message: "Created successfully!!!" });
     } catch (err) {

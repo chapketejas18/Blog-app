@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import userController from "../Controllers/userController";
 import authenticate from "../Middleware/authMiddleware";
 import blogController from "../Controllers/blogController";
+import checkUserExists from "../Middleware/checkUserExists";
 
 const router = express.Router();
 router
@@ -26,7 +27,7 @@ router.get("/healthcheck", (req: Request, res: Response) => {
 router.post("/signup", userController.register);
 router.post("/login", userController.login);
 router.get("/blogs", blogController.getAllBlogs);
-router.post("/createblog", authenticate, blogController.addBlog);
+router.post("/createblog", authenticate, checkUserExists, blogController.addBlog);
 router
   .route("/blogs/:id")
   .get(authenticate, blogController.getBlogById)

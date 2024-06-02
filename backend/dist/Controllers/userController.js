@@ -149,7 +149,7 @@ class MockDataHandler {
                     const token = jsonwebtoken_1.default.sign({ existingUser }, "b44fd2de00412db5ebc7350536b59e86731142f100deef1d486972b9c22e6b11", {
                         expiresIn: "40m",
                     });
-                    res.status(200).json({ token: token, user: existingUser });
+                    res.status(200).json({ token: token });
                 }
                 else {
                     res.status(404).json({

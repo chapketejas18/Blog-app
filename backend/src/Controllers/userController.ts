@@ -142,7 +142,7 @@ class MockDataHandler {
             expiresIn: "40m",
           }
         );
-        res.status(200).json({ token: token, user: existingUser });
+        res.status(200).json({ token: token });
       } else {
         res.status(404).json({
           message: "This mailId is not registered. Please Register to Login",

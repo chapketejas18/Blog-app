@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
@@ -6,14 +6,10 @@ import { Blogs } from "./components/Blogs";
 import { UserBlogs } from "./components/UserBlogs";
 import { AddBlog } from "./components/AddBlog";
 import { UpdateBlog } from "./components/UpdateBlog";
+import AuthContext, { AuthProvider } from "./components/AuthContext";
 
-const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(null);
-
-  useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn");
-    setIsLoggedIn(loggedIn === "true");
-  }, []);
+export const App = () => {
+  const { isLoggedIn } = useContext(AuthContext);
 
   const ProtectedRoute = ({ element }) => {
     if (isLoggedIn === null) {
@@ -29,47 +25,25 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <AuthRoute element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
-          }
-        />
+        <Route path="/" element={<AuthRoute element={<LoginPage />} />} />
         <Route
           path="/signup"
           element={<AuthRoute element={<SignupPage />} />}
         />
-        <Route
-          path="/blogs"
-          element={<Blogs setIsLoggedIn={setIsLoggedIn} />}
-        />
+        <Route path="/blogs" element={<Blogs />} />
         <Route
           path="/myblogs"
-          element={
-            <ProtectedRoute
-              element={<UserBlogs setIsLoggedIn={setIsLoggedIn} />}
-            />
-          }
+          element={<ProtectedRoute element={<UserBlogs />} />}
         />
         <Route
           path="/addblog"
-          element={
-            <ProtectedRoute
-              element={<AddBlog setIsLoggedIn={setIsLoggedIn} />}
-            />
-          }
+          element={<ProtectedRoute element={<AddBlog />} />}
         />
         <Route
           path="/edit"
-          element={
-            <ProtectedRoute
-              element={<UpdateBlog setIsLoggedIn={setIsLoggedIn} />}
-            />
-          }
+          element={<ProtectedRoute element={<UpdateBlog />} />}
         />
       </Routes>
     </BrowserRouter>
   );
 };
-
-export default App;

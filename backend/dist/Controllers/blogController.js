@@ -32,20 +32,12 @@ class blogController {
         });
         this.addBlog = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { title, description, imageurl, author } = req.body;
-            let existingUser;
-            try {
-                existingUser = yield UserRepository_1.default.findUserById(author);
-            }
-            catch (_a) { }
-            if (!existingUser) {
-                return res.status(400).json({ message: "User not found for this id" });
-            }
             try {
                 const blog = yield BlogRepository_1.default.createBlog(title, description, imageurl, author);
                 const blogId = blog.id;
                 const updatedBlog = yield UserRepository_1.default.updateUserByBlog(author, blogId);
                 if (!updatedBlog) {
-                    res.status(400).json({ message: "Error while creating data" });
+                    return res.status(400).json({ message: "Error while creating data" });
                 }
                 res.status(200).json({ message: "Created successfully!!!" });
             }

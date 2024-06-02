@@ -7,6 +7,7 @@ const express = require("express");
 const userController_1 = __importDefault(require("../Controllers/userController"));
 const authMiddleware_1 = __importDefault(require("../Middleware/authMiddleware"));
 const blogController_1 = __importDefault(require("../Controllers/blogController"));
+const checkUserExists_1 = __importDefault(require("../Middleware/checkUserExists"));
 const router = express.Router();
 router
     .route("/mockdata")
@@ -26,7 +27,7 @@ router.get("/healthcheck", (req, res) => {
 router.post("/signup", userController_1.default.register);
 router.post("/login", userController_1.default.login);
 router.get("/blogs", blogController_1.default.getAllBlogs);
-router.post("/createblog", authMiddleware_1.default, blogController_1.default.addBlog);
+router.post("/createblog", authMiddleware_1.default, checkUserExists_1.default, blogController_1.default.addBlog);
 router
     .route("/blogs/:id")
     .get(authMiddleware_1.default, blogController_1.default.getBlogById)
