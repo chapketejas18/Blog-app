@@ -33,7 +33,9 @@ class BlogRepository {
                 author: user.username,
                 authorid: author,
             };
-            return yield BlogModel_1.blogModel.create(blog);
+            const createdBlog = yield BlogModel_1.blogModel.create(blog);
+            app_1.default.emit("blogCreated", createdBlog);
+            return createdBlog;
         });
         this.updateBlogById = (id, title, description, imageurl) => __awaiter(this, void 0, void 0, function* () {
             const blog = {
@@ -41,13 +43,19 @@ class BlogRepository {
                 description,
                 imageurl,
             };
-            return BlogModel_1.blogModel.findByIdAndUpdate(id, blog, { new: true });
+            const updatedBlog = yield BlogModel_1.blogModel.findByIdAndUpdate(id, blog, {
+                new: true,
+            });
+            app_1.default.emit("blogUpdated", updatedBlog);
+            return updatedBlog;
         });
         this.findBlogById = (id) => __awaiter(this, void 0, void 0, function* () {
             return BlogModel_1.blogModel.findById(id);
         });
         this.deleteBlog = (id) => __awaiter(this, void 0, void 0, function* () {
-            return BlogModel_1.blogModel.findByIdAndDelete(id);
+            const deletedBlog = yield BlogModel_1.blogModel.findByIdAndDelete(id);
+            app_1.default.emit("blogDeleted", id);
+            return deletedBlog;
         });
         this.findBlogsByIds = (ids, page, limit) => __awaiter(this, void 0, void 0, function* () {
             const skip = (page - 1) * limit;

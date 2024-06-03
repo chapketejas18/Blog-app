@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import InfiniteScroll from "react-infinite-scroll-component";
 import AuthContext from "./AuthContext";
+import io from "socket.io-client";
 
 export const UserBlogs = () => {
   const { setIsLoggedIn } = useContext(AuthContext);
@@ -30,6 +31,30 @@ export const UserBlogs = () => {
     localStorage.removeItem("token");
     navigate("/");
   }
+
+  useEffect(() => {
+    const socket = io("http://localhost:9000");
+    socket.on("blogDeleted", (deletedBlogId) => {
+      setBlogs((prevBlogs) =>
+        prevBlogs.filter((blog) => blog._id !== deletedBlogId)
+      );
+    });
+    socket.on("blogCreated", (newBlog) => {
+      if (newBlog.authorid === userid) {
+        setBlogs((prevBlogs) => [newBlog, ...prevBlogs]);
+      }
+    });
+    socket.on("blogUpdated", (updatedBlog) => {
+      setBlogs((prevBlogs) =>
+        prevBlogs.map((blog) =>
+          blog._id === updatedBlog._id ? updatedBlog : blog
+        )
+      );
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const fetchData = async () => {
     try {

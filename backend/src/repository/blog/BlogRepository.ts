@@ -26,7 +26,9 @@ class BlogRepository {
       author: user.username,
       authorid: author,
     };
-    return await blogModel.create(blog);
+    const createdBlog = await blogModel.create(blog);
+    io.emit("blogCreated", createdBlog);
+    return createdBlog;
   };
 
   updateBlogById = async (
@@ -40,15 +42,21 @@ class BlogRepository {
       description,
       imageurl,
     };
-    return blogModel.findByIdAndUpdate(id, blog, { new: true });
+    const updatedBlog = await blogModel.findByIdAndUpdate(id, blog, {
+      new: true,
+    });
+    io.emit("blogUpdated", updatedBlog);
+    return updatedBlog;
   };
 
   findBlogById = async (id: String) => {
     return blogModel.findById(id);
   };
 
-  deleteBlog = async (id: string) => {
-    return blogModel.findByIdAndDelete(id);
+  deleteBlog = async (id: String) => {
+    const deletedBlog = await blogModel.findByIdAndDelete(id);
+    io.emit("blogDeleted", id);
+    return deletedBlog;
   };
 
   findBlogsByIds = async (

@@ -5,12 +5,35 @@ import { Blog } from "./Blog";
 import { Link } from "react-router-dom";
 import Layout from "./Layout";
 import AuthContext from "./AuthContext";
+import io from "socket.io-client";
 
 export const Blogs = () => {
   const { setIsLoggedIn } = useContext(AuthContext);
   const [blogs, setBlogs] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const socket = io("http://localhost:9000");
+    socket.on("blogDeleted", (deletedBlogId) => {
+      setBlogs((prevBlogs) =>
+        prevBlogs.filter((blog) => blog._id !== deletedBlogId)
+      );
+    });
+    socket.on("blogCreated", (newBlog) => {
+      setBlogs((prevBlogs) => [newBlog, ...prevBlogs]);
+    });
+    socket.on("blogUpdated", (updatedBlog) => {
+      setBlogs((prevBlogs) =>
+        prevBlogs.map((blog) =>
+          blog._id === updatedBlog._id ? updatedBlog : blog
+        )
+      );
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const fetchData = async () => {
     try {
