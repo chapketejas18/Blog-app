@@ -8,7 +8,7 @@ const secretKey = process.env.SECRECT_KEY;
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
+      userid?: any;
     }
   }
 }
@@ -24,7 +24,8 @@ const authenticate = (
   }
   try {
     const decoded = jwt.verify(token, secretKey);
-    req.user = decoded;
+    req.userid = decoded.existingUser.user._id;
+    // console.log("::::req.user", req.userid);
     next();
   } catch (error) {
     res.status(401).json({ error: "Authentication failed. Invalid token." });

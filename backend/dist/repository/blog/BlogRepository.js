@@ -8,7 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const app_1 = __importDefault(require("../../app"));
 const UserModel_1 = require("../user/UserModel");
 const BlogModel_1 = require("./BlogModel");
 class BlogRepository {
@@ -54,24 +58,36 @@ class BlogRepository {
                 .limit(limit);
         });
         this.likeBlogById = (id, userId) => __awaiter(this, void 0, void 0, function* () {
-            const blog = yield BlogModel_1.blogModel.findById(id);
-            if (!blog) {
-                throw new Error("Blog not found");
+            try {
+                const blog = yield BlogModel_1.blogModel.findById(id);
+                if (!blog) {
+                    throw new Error("Blog not found");
+                }
+                const userIndex = blog.likedBy.indexOf(userId);
+                let updatedBlog;
+                if (userIndex === -1) {
+                    updatedBlog = yield BlogModel_1.blogModel.findByIdAndUpdate(id, {
+                        $push: { likedBy: userId },
+                        $inc: { likecount: 1 },
+                    }, { new: true });
+                }
+                else {
+                    updatedBlog = yield BlogModel_1.blogModel.findByIdAndUpdate(id, {
+                        $pull: { likedBy: userId },
+                        $inc: { likecount: -1 },
+                    }, { new: true });
+                }
+                app_1.default.emit("likeStatusUpdated", {
+                    blogId: id,
+                    likes: updatedBlog.likecount,
+                    likedBy: updatedBlog.likedBy,
+                });
+                return updatedBlog;
             }
-            const userIndex = blog.likedBy.indexOf(userId);
-            if (userIndex === -1) {
-                yield BlogModel_1.blogModel.findByIdAndUpdate(id, {
-                    $push: { likedBy: userId },
-                    $inc: { likecount: 1 },
-                }, { new: true });
+            catch (err) {
+                console.error("Error:", err);
+                throw err;
             }
-            else {
-                yield BlogModel_1.blogModel.findByIdAndUpdate(id, {
-                    $pull: { likedBy: userId },
-                    $inc: { likecount: -1 },
-                }, { new: true });
-            }
-            return BlogModel_1.blogModel.findById(id);
         });
     }
 }

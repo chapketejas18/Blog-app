@@ -39,7 +39,7 @@ const LoginPage = () => {
     validationSchema: validationSchema,
     onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
-        const response = await fetch("http://localhost:9000/api/login", {
+        const response = await fetch("http://localhost:9000/api/blog/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

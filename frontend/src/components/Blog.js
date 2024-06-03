@@ -16,6 +16,12 @@ import Box from "@mui/material/Box";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { io } from "socket.io-client";
+import { useEffect } from "react";
+
+const socket = io("http://localhost:9000", {
+  reconnection: true,
+});
 
 const truncateText = (text, length) => {
   if (text.length <= length) return text;
@@ -40,6 +46,19 @@ export const Blog = ({
   const userid = decodedToken ? decodedToken.existingUser.user._id : null;
   const [liked, setLiked] = React.useState(likedBy.includes(userid));
   const [likes, setLikes] = React.useState(likeCount);
+
+  useEffect(() => {
+    socket.on("likeStatusUpdated", ({ blogId, likes, likedBy }) => {
+      if (blogId === id) {
+        setLikes(likes);
+        setLiked(likedBy.includes(userid));
+      }
+    });
+
+    return () => {
+      socket.off("likeStatusUpdated");
+    };
+  }, [id, userid]);
 
   const deleteRequest = async () => {
     const res = await axios

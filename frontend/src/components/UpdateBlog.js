@@ -35,7 +35,8 @@ export const UpdateBlog = () => {
   });
 
   const [isChanged, setIsChanged] = useState(false);
-  const [wordCount, setWordCount] = useState(0);
+  const [titleWordCount, setTitleWordCount] = useState(0);
+  const [descriptionWordCount, setDescriptionWordCount] = useState(0);
 
   useEffect(() => {
     const isTitleChanged = inputs.title !== initialTitle;
@@ -43,40 +44,39 @@ export const UpdateBlog = () => {
     setIsChanged(isTitleChanged || isDescriptionChanged);
   }, [inputs, initialTitle, initialDescription]);
 
-  const handleChange = (e) => {
-    setInputs((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  useEffect(() => {
+    setTitleWordCount(countWords(inputs.title));
+    setDescriptionWordCount(countWords(inputs.description));
+  }, [inputs.title, inputs.description]);
 
   const countWords = (str) => {
     return str.trim().split(/\s+/).length;
   };
 
-  const handleDescriptionChange = (e) => {
+  const handleChange = (e, wordLimit) => {
     const { name, value } = e.target;
-    if (name === "description") {
-      const words = countWords(value);
-      if (words > 200) {
-        const trimmedDescription = value.split(/\s+/).slice(0, 200).join(" ");
-        setInputs((prevState) => ({
-          ...prevState,
-          [name]: trimmedDescription,
-        }));
-        setWordCount(200);
-      } else {
-        setInputs((prevState) => ({
-          ...prevState,
-          [name]: value,
-        }));
-        setWordCount(words);
+    const words = countWords(value);
+    if (words > wordLimit) {
+      const trimmedValue = value.split(/\s+/).slice(0, wordLimit).join(" ");
+      setInputs((prevState) => ({
+        ...prevState,
+        [name]: trimmedValue,
+      }));
+      if (name === "title") {
+        setTitleWordCount(wordLimit);
+      } else if (name === "description") {
+        setDescriptionWordCount(wordLimit);
       }
     } else {
       setInputs((prevState) => ({
         ...prevState,
         [name]: value,
       }));
+      if (name === "title") {
+        setTitleWordCount(words);
+      } else if (name === "description") {
+        setDescriptionWordCount(words);
+      }
     }
   };
 
@@ -131,22 +131,25 @@ export const UpdateBlog = () => {
           <TextField
             className={classes.font}
             name="title"
-            onChange={handleChange}
+            onChange={(e) => handleChange(e, 30)}
             value={inputs.title}
             margin="auto"
             variant="outlined"
           />
+          <Typography variant="body2" color="textSecondary">
+            {titleWordCount} / 30 words
+          </Typography>
           <InputLabel className={classes.font} sx={labelStyles}>
             Description
           </InputLabel>
           <ResizableTextarea
             className={classes.font}
             name="description"
-            onChange={handleDescriptionChange}
+            onChange={(e) => handleChange(e, 2000)}
             value={inputs.description}
           />
           <Typography variant="body2" color="textSecondary">
-            {wordCount} / 200 words
+            {descriptionWordCount} / 2000 words
           </Typography>
           <Box display="flex" justifyContent="center">
             <Button

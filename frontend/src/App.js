@@ -6,7 +6,7 @@ import { Blogs } from "./components/Blogs";
 import { UserBlogs } from "./components/UserBlogs";
 import { AddBlog } from "./components/AddBlog";
 import { UpdateBlog } from "./components/UpdateBlog";
-import AuthContext, { AuthProvider } from "./components/AuthContext";
+import AuthContext from "./components/AuthContext";
 
 export const App = () => {
   const { isLoggedIn } = useContext(AuthContext);

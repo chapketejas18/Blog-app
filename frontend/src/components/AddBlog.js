@@ -27,7 +27,8 @@ export const AddBlog = () => {
   const navigate = useNavigate();
   const [imgurl, setImageurl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
-  const [wordCount, setWordCount] = useState(0);
+  const [titleWordCount, setTitleWordCount] = useState(0);
+  const [descriptionWordCount, setDescriptionWordCount] = useState(0);
   const [inputs, setInputs] = useState({
     title: "",
     description: "",
@@ -38,29 +39,30 @@ export const AddBlog = () => {
     return str.trim().split(/\s+/).length;
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e, wordLimit) => {
     const { name, value } = e.target;
-    if (name === "description") {
-      const words = countWords(value);
-      if (words > 200) {
-        const trimmedDescription = value.split(/\s+/).slice(0, 200).join(" ");
-        setInputs((prevState) => ({
-          ...prevState,
-          [name]: trimmedDescription,
-        }));
-        setWordCount(200);
-      } else {
-        setInputs((prevState) => ({
-          ...prevState,
-          [name]: value,
-        }));
-        setWordCount(words);
+    const words = countWords(value);
+    if (words > wordLimit) {
+      const trimmedValue = value.split(/\s+/).slice(0, wordLimit).join(" ");
+      setInputs((prevState) => ({
+        ...prevState,
+        [name]: trimmedValue,
+      }));
+      if (name === "title") {
+        setTitleWordCount(wordLimit);
+      } else if (name === "description") {
+        setDescriptionWordCount(wordLimit);
       }
     } else {
       setInputs((prevState) => ({
         ...prevState,
         [name]: value,
       }));
+      if (name === "title") {
+        setTitleWordCount(words);
+      } else if (name === "description") {
+        setDescriptionWordCount(words);
+      }
     }
   };
 
@@ -93,9 +95,8 @@ export const AddBlog = () => {
       const token = localStorage.getItem("token");
       const decodedToken = jwtDecode(token);
       const userId = decodedToken.existingUser.user._id;
-      console.log(token);
       const res = await axios.post(
-        "http://localhost:9000/api/createblog",
+        "http://localhost:9000/api/blog/createblog",
         {
           title: inputs.title,
           description: inputs.description,
@@ -158,22 +159,25 @@ export const AddBlog = () => {
           <TextField
             className={classes.font}
             name="title"
-            onChange={handleChange}
+            onChange={(e) => handleChange(e, 30)}
             value={inputs.title}
             margin="auto"
             variant="outlined"
           />
+          <Typography variant="body2" color="textSecondary">
+            {titleWordCount} / 30 words
+          </Typography>
           <InputLabel className={classes.font} sx={labelStyles}>
             Description
           </InputLabel>
           <ResizableTextarea
             className={classes.font}
             name="description"
-            onChange={handleChange}
+            onChange={(e) => handleChange(e, 2000)}
             value={inputs.description}
           />
           <Typography variant="body2" color="textSecondary">
-            {wordCount} / 200 words
+            {descriptionWordCount} / 2000 words
           </Typography>
           <InputLabel className={classes.font} sx={labelStyles}>
             Image

@@ -1,3 +1,4 @@
+import io from "../../app";
 import { userModel } from "../user/UserModel";
 import { blogModel } from "./BlogModel";
 import { IBlog } from "./IBlog";
@@ -64,33 +65,46 @@ class BlogRepository {
   };
 
   likeBlogById = async (id: string, userId: string) => {
-    const blog = await blogModel.findById(id);
-    if (!blog) {
-      throw new Error("Blog not found");
-    }
+    try {
+      const blog = await blogModel.findById(id);
+      if (!blog) {
+        throw new Error("Blog not found");
+      }
 
-    const userIndex = blog.likedBy.indexOf(userId);
+      const userIndex = blog.likedBy.indexOf(userId);
+      let updatedBlog: any;
 
-    if (userIndex === -1) {
-      await blogModel.findByIdAndUpdate(
-        id,
-        {
-          $push: { likedBy: userId },
-          $inc: { likecount: 1 },
-        },
-        { new: true }
-      );
-    } else {
-      await blogModel.findByIdAndUpdate(
-        id,
-        {
-          $pull: { likedBy: userId },
-          $inc: { likecount: -1 },
-        },
-        { new: true }
-      );
+      if (userIndex === -1) {
+        updatedBlog = await blogModel.findByIdAndUpdate(
+          id,
+          {
+            $push: { likedBy: userId },
+            $inc: { likecount: 1 },
+          },
+          { new: true }
+        );
+      } else {
+        updatedBlog = await blogModel.findByIdAndUpdate(
+          id,
+          {
+            $pull: { likedBy: userId },
+            $inc: { likecount: -1 },
+          },
+          { new: true }
+        );
+      }
+
+      io.emit("likeStatusUpdated", {
+        blogId: id,
+        likes: updatedBlog.likecount,
+        likedBy: updatedBlog.likedBy,
+      });
+
+      return updatedBlog;
+    } catch (err) {
+      console.error("Error:", err);
+      throw err;
     }
-    return blogModel.findById(id);
   };
 }
 

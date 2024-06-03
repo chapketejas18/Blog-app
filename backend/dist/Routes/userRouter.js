@@ -24,10 +24,10 @@ router.get("/errorhandler", () => {
 router.get("/healthcheck", (req, res) => {
     res.status(200).json({ message: "Everything is working properly" });
 });
-router.post("/signup", userController_1.default.register);
-router.post("/login", userController_1.default.login);
+router.post("/blog/signup", userController_1.default.register);
+router.post("/blog/login", userController_1.default.login);
 router.get("/blogs", blogController_1.default.getAllBlogs);
-router.post("/createblog", authMiddleware_1.default, checkUserExists_1.default, blogController_1.default.addBlog);
+router.post("/blog/createblog", authMiddleware_1.default, checkUserExists_1.default, blogController_1.default.addBlog);
 router
     .route("/blogs/:id")
     .get(authMiddleware_1.default, blogController_1.default.getBlogById)

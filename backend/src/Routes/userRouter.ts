@@ -24,10 +24,15 @@ router.get("/healthcheck", (req: Request, res: Response) => {
   res.status(200).json({ message: "Everything is working properly" });
 });
 
-router.post("/signup", userController.register);
-router.post("/login", userController.login);
+router.post("/blog/signup", userController.register);
+router.post("/blog/login", userController.login);
 router.get("/blogs", blogController.getAllBlogs);
-router.post("/createblog", authenticate, checkUserExists, blogController.addBlog);
+router.post(
+  "/blog/createblog",
+  authenticate,
+  checkUserExists,
+  blogController.addBlog
+);
 router
   .route("/blogs/:id")
   .get(authenticate, blogController.getBlogById)

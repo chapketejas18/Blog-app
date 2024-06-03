@@ -29,7 +29,7 @@ const SignupPage = () => {
 
   const handleSignup = async (values, { setSubmitting, setErrors }) => {
     try {
-      const response = await fetch("http://localhost:9000/api/signup", {
+      const response = await fetch("http://localhost:9000/api/blog/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
