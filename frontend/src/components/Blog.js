@@ -119,10 +119,8 @@ export const Blog = ({
       });
   };
 
-  const [expanded, setExpanded] = React.useState(false);
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
+  const handleClick = () => {
+    navigate(`/blog/${id}`);
   };
 
   const formatTime = (date) => {
@@ -198,20 +196,20 @@ export const Blog = ({
           component="img"
           height="450"
           image={imageURL}
-          sx={{ objectFit: "contain" }} // Updated this line to ensure proper image fitting
+          sx={{ objectFit: "contain" }}
         />
         <CardContent>
           <Typography variant="body2" color="text.secondary">
-            {expanded ? description : truncateText(description, 140)}
-            {description.length > 150 && (
+            {truncateText(description, 140)}
+            {description.length > 140 && (
               <Typography
                 variant="body2"
                 color="primary"
-                onClick={handleExpandClick}
+                onClick={handleClick}
                 sx={{ cursor: "pointer" }}
               >
                 {" "}
-                {expanded ? "Read Less" : "Read More"}
+                Read More
               </Typography>
             )}
           </Typography>

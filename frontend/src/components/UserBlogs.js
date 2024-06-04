@@ -59,7 +59,7 @@ export const UserBlogs = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:9000/api/blogsof/${userid}?page=${page}&limit=2`,
+        `http://localhost:9000/api/blogsof/${userid}?page=${page}&limit=6`,
         {
           headers: {
             Authorization: token,

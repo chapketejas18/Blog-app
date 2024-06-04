@@ -7,6 +7,7 @@ import { UserBlogs } from "./components/UserBlogs";
 import { AddBlog } from "./components/AddBlog";
 import { UpdateBlog } from "./components/UpdateBlog";
 import AuthContext from "./components/AuthContext";
+import SingleBlog from "./components/SingleBlog";
 
 export const App = () => {
   const { isLoggedIn } = useContext(AuthContext);
@@ -42,6 +43,10 @@ export const App = () => {
         <Route
           path="/edit"
           element={<ProtectedRoute element={<UpdateBlog />} />}
+        />
+        <Route
+          path="/blog/:id"
+          element={<ProtectedRoute element={<SingleBlog />} />}
         />
       </Routes>
     </BrowserRouter>
