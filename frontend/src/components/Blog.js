@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardMedia from "@mui/material/CardMedia";
@@ -12,12 +12,11 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Box from "@mui/material/Box";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { io } from "socket.io-client";
-import { useEffect } from "react";
+import { Grid } from "@mui/material";
 
 const socket = io("http://localhost:9000", {
   reconnection: true,
@@ -144,16 +143,8 @@ export const Blog = ({
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "75vh",
-        padding: 2,
-      }}
-    >
-      <Card sx={{ width: "100%", maxWidth: 1000 }} key={id}>
+    <Grid item xs={12} sm={6} md={4}>
+      <Card sx={{ width: "100%", margin: 2 }} key={id}>
         <CardHeader
           avatar={
             <Avatar sx={{ bgcolor: red[500] }} aria-label="blog">
@@ -194,7 +185,7 @@ export const Blog = ({
         />
         <CardMedia
           component="img"
-          height="450"
+          height="194"
           image={imageURL}
           sx={{ objectFit: "contain" }}
         />
@@ -226,6 +217,6 @@ export const Blog = ({
           </IconButton>
         </CardActions>
       </Card>
-    </Box>
+    </Grid>
   );
 };

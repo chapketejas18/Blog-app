@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import Layout from "./Layout";
 import AuthContext from "./AuthContext";
 import io from "socket.io-client";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
 
 export const Blogs = () => {
   const { setIsLoggedIn } = useContext(AuthContext);
@@ -131,19 +133,23 @@ export const Blogs = () => {
           </center>
         }
       >
-        {blogs.map((blog, index) => (
-          <Blog
-            key={index}
-            id={blog._id}
-            title={blog.title}
-            description={blog.description}
-            imageURL={blog.imageurl}
-            userName={blog.author}
-            createdOn={blog.createdOn}
-            likedBy={blog.likedBy}
-            likeCount={blog.likecount}
-          />
-        ))}
+        <Box sx={{ flexGrow: 1, padding: 2 }}>
+          <Grid container spacing={2}>
+            {blogs.map((blog, index) => (
+              <Blog
+                key={index}
+                id={blog._id}
+                title={blog.title}
+                description={blog.description}
+                imageURL={blog.imageurl}
+                userName={blog.author}
+                createdOn={blog.createdOn}
+                likedBy={blog.likedBy}
+                likeCount={blog.likecount}
+              />
+            ))}
+          </Grid>
+        </Box>
       </InfiniteScroll>
     </div>
   );
