@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardMedia from "@mui/material/CardMedia";
@@ -12,12 +12,11 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Box from "@mui/material/Box";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { io } from "socket.io-client";
-import { useEffect } from "react";
+import { Grid } from "@mui/material";
 
 const socket = io("http://localhost:9000", {
   reconnection: true,
@@ -119,12 +118,6 @@ export const Blog = ({
       });
   };
 
-  const [expanded, setExpanded] = React.useState(false);
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
-
   const formatTime = (date) => {
     const now = new Date();
     const postDate = new Date(date);
@@ -145,17 +138,13 @@ export const Blog = ({
     }
   };
 
+  const handleClick = () => {
+    navigate(`/blog/${id}`);
+  };
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "75vh",
-        padding: 2,
-      }}
-    >
-      <Card sx={{ width: "100%", maxWidth: 1000 }} key={id}>
+    <Grid item xs={12} sm={6} md={4}>
+      <Card sx={{ width: "100%", margin: 2 }} key={id}>
         <CardHeader
           avatar={
             <Avatar sx={{ bgcolor: red[500] }} aria-label="blog">
@@ -196,22 +185,22 @@ export const Blog = ({
         />
         <CardMedia
           component="img"
-          height="450"
+          height="194"
           image={imageURL}
-          sx={{ objectFit: "contain" }} // Updated this line to ensure proper image fitting
+          sx={{ objectFit: "contain" }}
         />
         <CardContent>
           <Typography variant="body2" color="text.secondary">
-            {expanded ? description : truncateText(description, 140)}
-            {description.length > 150 && (
+            {truncateText(description, 140)}
+            {description.length > 140 && (
               <Typography
                 variant="body2"
                 color="primary"
-                onClick={handleExpandClick}
+                onClick={handleClick}
                 sx={{ cursor: "pointer" }}
               >
                 {" "}
-                {expanded ? "Read Less" : "Read More"}
+                Read More
               </Typography>
             )}
           </Typography>
@@ -228,6 +217,6 @@ export const Blog = ({
           </IconButton>
         </CardActions>
       </Card>
-    </Box>
+    </Grid>
   );
 };
