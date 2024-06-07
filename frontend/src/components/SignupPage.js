@@ -13,6 +13,7 @@ import { Info } from "@mui/icons-material";
 import { useNavigate, Link } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { GoogleLogin } from "react-google-login";
 
 export const SignupPage = () => {
   const navigate = useNavigate();
@@ -74,6 +75,14 @@ export const SignupPage = () => {
       setErrors({ form: "Signup failed. Please try again later." });
     }
     setSubmitting(false);
+  };
+
+  const handleGoogleSuccess = async (response) => {
+    console.log("Hiii");
+  };
+
+  const handleGoogleFailure = (error) => {
+    console.error("Google Sign-In Error:", error);
   };
 
   return (
@@ -215,6 +224,15 @@ export const SignupPage = () => {
                 >
                   Sign Up
                 </Button>
+                <center>
+                  <GoogleLogin
+                    clientId="287908866352-8jd7l5a2edck4rtnpj4n85r0ch2oqr4b.apps.googleusercontent.com"
+                    buttonText="Sign up with Google"
+                    onSuccess={handleGoogleSuccess}
+                    onFailure={handleGoogleFailure}
+                    cookiePolicy={"single_host_origin"}
+                  />
+                </center>
                 <Typography align="center" sx={{ mt: 2 }}>
                   Already have an account? <Link to="/v1/login">Login</Link>
                 </Typography>

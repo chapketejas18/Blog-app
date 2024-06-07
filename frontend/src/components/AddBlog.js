@@ -49,7 +49,7 @@ export const AddBlog = () => {
 
   const handleChange = (e, charLimit) => {
     const { name, value } = e.target;
-    const charCount = value.length;
+    const charCount = value.trim().length;
     if (charCount > charLimit) {
       const trimmedValue = value.substring(0, charLimit);
       setInputs((prevState) => ({

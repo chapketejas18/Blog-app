@@ -38,6 +38,8 @@ export const UpdateBlog = () => {
   const [titleCharCount, setTitleCharCount] = useState(0);
   const [descriptionCharCount, setDescriptionCharCount] = useState(0);
 
+  const countNonSpaceChars = (str) => str.replace(/\s+/g, "").length;
+
   useEffect(() => {
     const isTitleChanged = formData.title !== initialTitle;
     const isDescriptionChanged = formData.description !== initialDescription;
@@ -45,19 +47,14 @@ export const UpdateBlog = () => {
   }, [formData, initialTitle, initialDescription]);
 
   useEffect(() => {
-    setTitleCharCount(formData.title.length);
-    setDescriptionCharCount(formData.description.length);
+    setTitleCharCount(countNonSpaceChars(formData.title));
+    setDescriptionCharCount(countNonSpaceChars(formData.description));
   }, [formData.title, formData.description]);
 
   const handleChange = (e, charLimit) => {
     const { name, value } = e.target;
-    if (value.length > charLimit) {
-      const trimmedValue = value.slice(0, charLimit);
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: trimmedValue,
-      }));
-    } else {
+    const nonSpaceCharCount = countNonSpaceChars(value);
+    if (nonSpaceCharCount <= charLimit) {
       setFormData((prevData) => ({
         ...prevData,
         [name]: value,
