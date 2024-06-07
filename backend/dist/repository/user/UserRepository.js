@@ -61,6 +61,11 @@ class UserRepository {
                     error: "This mailId is not registered. Please Register to Login",
                 };
             }
+            if (!user.isVerified) {
+                return {
+                    error: "Email not verified",
+                };
+            }
             const validPassword = yield bcrypt_1.default.compare(body.password, user.password);
             if (!validPassword) {
                 return { error: "Incorrect password. Please try again." };

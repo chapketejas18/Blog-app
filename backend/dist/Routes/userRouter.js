@@ -25,6 +25,7 @@ router.get("/healthcheck", (req, res) => {
     res.status(200).json({ message: "Everything is working properly" });
 });
 router.post("/blog/signup", userController_1.default.register);
+router.get("/verify/:userId", userController_1.default.verifyEmail);
 router.post("/blog/login", userController_1.default.login);
 router.get("/blogs", blogController_1.default.getAllBlogs);
 router.post("/blog/createblog", authMiddleware_1.default, checkUserExists_1.default, blogController_1.default.addBlog);

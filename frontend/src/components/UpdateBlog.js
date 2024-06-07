@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useStyles } from "./utils";
 import Layout from "./Layout";
 import { styled } from "@mui/system";
-import AuthContext from "./AuthContext";
+import { AuthContext } from "./AuthContext";
 
 const labelStyles = { mb: 1, mt: 2, fontSize: "24px", fontWeight: "bold" };
 
@@ -29,54 +29,39 @@ export const UpdateBlog = () => {
     description: initialDescription,
   } = location.state;
 
-  const [inputs, setInputs] = useState({
+  const [formData, setFormData] = useState({
     title: initialTitle,
     description: initialDescription,
   });
 
   const [isChanged, setIsChanged] = useState(false);
-  const [titleWordCount, setTitleWordCount] = useState(0);
-  const [descriptionWordCount, setDescriptionWordCount] = useState(0);
+  const [titleCharCount, setTitleCharCount] = useState(0);
+  const [descriptionCharCount, setDescriptionCharCount] = useState(0);
 
   useEffect(() => {
-    const isTitleChanged = inputs.title !== initialTitle;
-    const isDescriptionChanged = inputs.description !== initialDescription;
+    const isTitleChanged = formData.title !== initialTitle;
+    const isDescriptionChanged = formData.description !== initialDescription;
     setIsChanged(isTitleChanged || isDescriptionChanged);
-  }, [inputs, initialTitle, initialDescription]);
+  }, [formData, initialTitle, initialDescription]);
 
   useEffect(() => {
-    setTitleWordCount(countWords(inputs.title));
-    setDescriptionWordCount(countWords(inputs.description));
-  }, [inputs.title, inputs.description]);
+    setTitleCharCount(formData.title.length);
+    setDescriptionCharCount(formData.description.length);
+  }, [formData.title, formData.description]);
 
-  const countWords = (str) => {
-    return str.trim().split(/\s+/).length;
-  };
-
-  const handleChange = (e, wordLimit) => {
+  const handleChange = (e, charLimit) => {
     const { name, value } = e.target;
-    const words = countWords(value);
-    if (words > wordLimit) {
-      const trimmedValue = value.split(/\s+/).slice(0, wordLimit).join(" ");
-      setInputs((prevState) => ({
-        ...prevState,
+    if (value.length > charLimit) {
+      const trimmedValue = value.slice(0, charLimit);
+      setFormData((prevData) => ({
+        ...prevData,
         [name]: trimmedValue,
       }));
-      if (name === "title") {
-        setTitleWordCount(wordLimit);
-      } else if (name === "description") {
-        setDescriptionWordCount(wordLimit);
-      }
     } else {
-      setInputs((prevState) => ({
-        ...prevState,
+      setFormData((prevData) => ({
+        ...prevData,
         [name]: value,
       }));
-      if (name === "title") {
-        setTitleWordCount(words);
-      } else if (name === "description") {
-        setDescriptionWordCount(words);
-      }
     }
   };
 
@@ -87,8 +72,8 @@ export const UpdateBlog = () => {
       const res = await axios.put(
         `http://localhost:9000/api/blogs/${id}`,
         {
-          title: inputs.title,
-          description: inputs.description,
+          title: formData.title,
+          description: formData.description,
         },
         {
           headers: {
@@ -97,7 +82,7 @@ export const UpdateBlog = () => {
         }
       );
       console.log(res.data);
-      navigate("/blogs");
+      navigate("/v1/myblogs");
     } catch (error) {
       console.error("Error updating blog:", error);
     }
@@ -131,13 +116,13 @@ export const UpdateBlog = () => {
           <TextField
             className={classes.font}
             name="title"
-            onChange={(e) => handleChange(e, 30)}
-            value={inputs.title}
+            onChange={(e) => handleChange(e, 70)}
+            value={formData.title}
             margin="auto"
             variant="outlined"
           />
           <Typography variant="body2" color="textSecondary">
-            {titleWordCount} / 30 words
+            {titleCharCount} / 70 characters
           </Typography>
           <InputLabel className={classes.font} sx={labelStyles}>
             Description
@@ -146,10 +131,10 @@ export const UpdateBlog = () => {
             className={classes.font}
             name="description"
             onChange={(e) => handleChange(e, 2000)}
-            value={inputs.description}
+            value={formData.description}
           />
           <Typography variant="body2" color="textSecondary">
-            {descriptionWordCount} / 2000 words
+            {descriptionCharCount} / 2000 characters
           </Typography>
           <Box display="flex" justifyContent="center">
             <Button

@@ -1,11 +1,33 @@
-import React from "react";
-import { Button, TextField, Container, Typography, Box } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Button,
+  TextField,
+  Container,
+  Typography,
+  Box,
+  IconButton,
+  Popover,
+  InputAdornment,
+} from "@mui/material";
+import { Info } from "@mui/icons-material";
 import { useNavigate, Link } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-const SignupPage = () => {
+export const SignupPage = () => {
   const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
 
   const validationSchema = Yup.object().shape({
     username: Yup.string().required("Username is required"),
@@ -43,7 +65,7 @@ const SignupPage = () => {
 
       if (response.ok) {
         alert("Signed Up Successfully");
-        navigate("/");
+        navigate("/v1/login");
       } else {
         const errorData = await response.json();
         setErrors({ form: errorData.message || "Signup failed" });
@@ -139,8 +161,34 @@ const SignupPage = () => {
                     </>
                   }
                   error={touched.password && !!errors.password}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={handleClick} aria-describedby={id}>
+                          <Info />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
-
+                <Popover
+                  id={id}
+                  open={open}
+                  anchorEl={anchorEl}
+                  onClose={handleClose}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                  }}
+                >
+                  <Box sx={{ p: 2 }}>
+                    <ul>
+                      <li>At least one capital letter</li>
+                      <li>Between 7 and 30 characters long</li>
+                      <li>At least one special character</li>
+                    </ul>
+                  </Box>
+                </Popover>
                 <Field
                   as={TextField}
                   margin="normal"
@@ -151,16 +199,9 @@ const SignupPage = () => {
                   type="password"
                   id="confirmPassword"
                   helperText={
-                    <>
-                      {touched.confirmPassword && errors.confirmPassword ? (
-                        <ErrorMessage name="confirmPassword" />
-                      ) : null}
-                      <ul>
-                        <li>At least one capital letter</li>
-                        <li>Between 7 and 30 characters long</li>
-                        <li>At least one special character</li>
-                      </ul>
-                    </>
+                    touched.confirmPassword && errors.confirmPassword ? (
+                      <ErrorMessage name="confirmPassword" />
+                    ) : null
                   }
                   error={touched.confirmPassword && !!errors.confirmPassword}
                 />
@@ -175,7 +216,7 @@ const SignupPage = () => {
                   Sign Up
                 </Button>
                 <Typography align="center" sx={{ mt: 2 }}>
-                  Already have an account? <Link to="/">Login</Link>
+                  Already have an account? <Link to="/v1/login">Login</Link>
                 </Typography>
               </Form>
             )}
@@ -185,5 +226,3 @@ const SignupPage = () => {
     </Container>
   );
 };
-
-export default SignupPage;

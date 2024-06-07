@@ -5,4 +5,5 @@ export interface IUser extends Document {
   password: string;
   username: string;
   blogs: mongoose.Types.ObjectId[];
+  isVerified: boolean;
 }

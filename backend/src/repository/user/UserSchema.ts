@@ -20,4 +20,8 @@ export const userSchema: Schema<IUser> = new Schema({
       ref: "Blog",
     },
   ],
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
 });

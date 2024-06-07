@@ -1,5 +1,14 @@
-import React, { useContext, useState } from "react";
-import { Box, Button, InputLabel, TextField, Typography } from "@mui/material";
+import React, { useContext, useState, useRef } from "react";
+import {
+  Box,
+  Button,
+  InputLabel,
+  Snackbar,
+  TextField,
+  Typography,
+  IconButton,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -8,7 +17,7 @@ import Layout from "./Layout";
 import { styled } from "@mui/system";
 import firebase from "firebase/compat/app";
 import "firebase/compat/storage";
-import AuthContext from "./AuthContext";
+import { AuthContext } from "./AuthContext";
 
 const labelStyles = { mb: 1, mt: 2, fontSize: "24px", fontWeight: "bold" };
 
@@ -25,33 +34,32 @@ export const AddBlog = () => {
   const { setIsLoggedIn } = useContext(AuthContext);
   const classes = useStyles();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
   const [imgurl, setImageurl] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
   const [isUploading, setIsUploading] = useState(false);
-  const [titleWordCount, setTitleWordCount] = useState(0);
-  const [descriptionWordCount, setDescriptionWordCount] = useState(0);
+  const [titleCharCount, setTitleCharCount] = useState(0);
+  const [descriptionCharCount, setDescriptionCharCount] = useState(0);
   const [inputs, setInputs] = useState({
     title: "",
     description: "",
     imageURL: "",
   });
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const countWords = (str) => {
-    return str.trim().split(/\s+/).length;
-  };
-
-  const handleChange = (e, wordLimit) => {
+  const handleChange = (e, charLimit) => {
     const { name, value } = e.target;
-    const words = countWords(value);
-    if (words > wordLimit) {
-      const trimmedValue = value.split(/\s+/).slice(0, wordLimit).join(" ");
+    const charCount = value.length;
+    if (charCount > charLimit) {
+      const trimmedValue = value.substring(0, charLimit);
       setInputs((prevState) => ({
         ...prevState,
         [name]: trimmedValue,
       }));
       if (name === "title") {
-        setTitleWordCount(wordLimit);
+        setTitleCharCount(charLimit);
       } else if (name === "description") {
-        setDescriptionWordCount(wordLimit);
+        setDescriptionCharCount(charLimit);
       }
     } else {
       setInputs((prevState) => ({
@@ -59,9 +67,9 @@ export const AddBlog = () => {
         [name]: value,
       }));
       if (name === "title") {
-        setTitleWordCount(words);
+        setTitleCharCount(charCount);
       } else if (name === "description") {
-        setDescriptionWordCount(words);
+        setDescriptionCharCount(charCount);
       }
     }
   };
@@ -70,6 +78,7 @@ export const AddBlog = () => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       setIsUploading(true);
+      setImagePreview(URL.createObjectURL(selectedFile));
       const storageRef = firebase.storage().ref();
       const fileRef = storageRef.child(selectedFile.name);
 
@@ -86,6 +95,26 @@ export const AddBlog = () => {
       });
     } else {
       console.log("No file selected");
+    }
+  };
+
+  const removeImageFromCloud = async () => {
+    if (imgurl) {
+      const storageRef = firebase.storage().refFromURL(imgurl);
+      try {
+        await storageRef.delete();
+        setImagePreview("");
+        setImageurl("");
+        setInputs((prevState) => ({
+          ...prevState,
+          imageURL: "",
+        }));
+        navigate("/v1/myblogs");
+      } catch (deleteError) {
+        console.error("Error deleting image from Firebase:", deleteError);
+      }
+    } else {
+      navigate("/v1/myblogs");
     }
   };
 
@@ -110,13 +139,25 @@ export const AddBlog = () => {
         }
       );
       console.log(res.data);
-      navigate("/blogs");
+      setOpenSnackbar(true);
+      setInputs({
+        title: "",
+        description: "",
+        imageURL: "",
+      });
+      setImagePreview("");
+      setTitleCharCount(0);
+      setDescriptionCharCount(0);
+      setImageurl("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     } catch (error) {
       if (error.response && error.response.status === 401) {
         setIsLoggedIn(false);
-        localStorage.setItem("isLoggedIn", "false");
+        localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("token");
-        navigate("/");
+        navigate("/v1/login");
       } else {
         console.error("Error adding blog:", error);
         if (imgurl) {
@@ -131,6 +172,13 @@ export const AddBlog = () => {
     }
   };
 
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
   return (
     <div>
       <Layout setIsLoggedIn={setIsLoggedIn} />
@@ -143,6 +191,14 @@ export const AddBlog = () => {
           flexDirection={"column"}
           width={"80%"}
         >
+          <Button
+            onClick={removeImageFromCloud}
+            variant="contained"
+            color="primary"
+            style={{ width: "100px" }}
+          >
+            Go Back
+          </Button>
           <Typography
             className={classes.font}
             fontWeight={"bold"}
@@ -159,13 +215,13 @@ export const AddBlog = () => {
           <TextField
             className={classes.font}
             name="title"
-            onChange={(e) => handleChange(e, 30)}
+            onChange={(e) => handleChange(e, 70)}
             value={inputs.title}
             margin="auto"
             variant="outlined"
           />
           <Typography variant="body2" color="textSecondary">
-            {titleWordCount} / 30 words
+            {titleCharCount} / 70 characters
           </Typography>
           <InputLabel className={classes.font} sx={labelStyles}>
             Description
@@ -177,7 +233,7 @@ export const AddBlog = () => {
             value={inputs.description}
           />
           <Typography variant="body2" color="textSecondary">
-            {descriptionWordCount} / 2000 words
+            {descriptionCharCount} / 2000 characters
           </Typography>
           <InputLabel className={classes.font} sx={labelStyles}>
             Image
@@ -187,7 +243,18 @@ export const AddBlog = () => {
             onChange={handleFileUpload}
             aria-label="File upload input"
             style={{ marginBottom: "16px", marginTop: "8px", fontSize: "18px" }}
+            ref={fileInputRef}
+            accept=".jpg, .jpeg"
           />
+          {imagePreview && (
+            <Box display="flex" justifyContent="center" mb={2}>
+              <img
+                src={imagePreview}
+                alt="Selected"
+                style={{ maxWidth: "100%", maxHeight: "300px" }}
+              />
+            </Box>
+          )}
           {isUploading ? (
             <Typography variant="body1" textAlign="center">
               Uploading...
@@ -205,6 +272,22 @@ export const AddBlog = () => {
           )}
         </Box>
       </form>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        message={"Blog created Successfully!!!"}
+        onClose={handleCloseSnackbar}
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleCloseSnackbar}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
     </div>
   );
 };

@@ -44,4 +44,8 @@ exports.userSchema = new mongoose_1.Schema({
             ref: "Blog",
         },
     ],
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
 });

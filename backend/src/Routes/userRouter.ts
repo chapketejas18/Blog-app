@@ -25,6 +25,7 @@ router.get("/healthcheck", (req: Request, res: Response) => {
 });
 
 router.post("/blog/signup", userController.register);
+router.get("/verify/:userId", userController.verifyEmail);
 router.post("/blog/login", userController.login);
 router.get("/blogs", blogController.getAllBlogs);
 router.post(

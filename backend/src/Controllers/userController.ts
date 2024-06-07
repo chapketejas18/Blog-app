@@ -102,7 +102,7 @@ class MockDataHandler {
       const mail = body.email;
       const { error } = userSchema.validate(body);
       if (error) {
-        res.status(400).json({ error: error.details[0].message });
+        res.status(400).json({ message: error.details[0].message });
         return;
       }
       const createdUser: any = await UserRepository.registerUser(body);
@@ -114,7 +114,7 @@ class MockDataHandler {
           from: "tejaschapke21@gmail.com",
           to: mail,
           subject: "Signup Successful",
-          text: `Congratulations! You have successfully signed up to BloggerApp. Click here to login: http://localhost:3000`,
+          text: `Congratulations! You have successfully signed up to BloggerApp. Click here to verify: http://localhost:9000/api/verify/${createdUser._id}`,
         };
         await transporter.sendMail(mailOptions);
         res.status(200).json({ message: "User Signed up Successfully" });
@@ -123,6 +123,27 @@ class MockDataHandler {
       }
     } catch (err) {
       console.error("Error:", err);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+
+  verifyEmail = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const userId = req.params.userId;
+      const user = await UserRepository.findUserById(userId);
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+      if (user.isVerified) {
+        res.status(400).json({ error: "Email already verified" });
+        return;
+      }
+      user.isVerified = true;
+      await user.save();
+      res.status(200).json({ message: "Email verified successfully" });
+    } catch (error) {
+      console.error("Error:", error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   };

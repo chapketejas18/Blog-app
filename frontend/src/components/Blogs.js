@@ -4,10 +4,9 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { Blog } from "./Blog";
 import { Link } from "react-router-dom";
 import Layout from "./Layout";
-import AuthContext from "./AuthContext";
+import { AuthContext } from "./AuthContext";
 import io from "socket.io-client";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
+import { Grid, Box } from "@mui/material";
 
 export const Blogs = () => {
   const { setIsLoggedIn } = useContext(AuthContext);
@@ -40,14 +39,14 @@ export const Blogs = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:9000/api/blogs?page=${page}&limit=2`
+        `http://localhost:9000/api/blogs?page=${page}&limit=6`
       );
       const newBlogs = response.data;
 
       setBlogs((prevBlogs) => [...prevBlogs, ...newBlogs]);
       setPage((prevPage) => prevPage + 1);
 
-      if (newBlogs.length < 2) {
+      if (newBlogs.length < 6) {
         setHasMore(false);
       }
 
@@ -107,7 +106,7 @@ export const Blogs = () => {
                 Here is the link to give first contribution to this application
               </p>
               <Link
-                to="/addblog"
+                to="/v1/addblog"
                 style={linkStyle}
                 onMouseEnter={(e) =>
                   (e.target.style.backgroundColor =

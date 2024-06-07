@@ -5,8 +5,10 @@ import Layout from "./Layout";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import InfiniteScroll from "react-infinite-scroll-component";
-import AuthContext from "./AuthContext";
+import { AuthContext } from "./AuthContext";
 import io from "socket.io-client";
+import { Box, Grid, Snackbar, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 export const UserBlogs = () => {
   const { setIsLoggedIn } = useContext(AuthContext);
@@ -15,6 +17,12 @@ export const UserBlogs = () => {
   const [page, setPage] = useState(1);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [navigateOnClose, setNavigateOnClose] = useState(false);
+  const vertical = "top";
+  const horizontal = "center";
 
   let decodedToken;
   let userid;
@@ -29,7 +37,7 @@ export const UserBlogs = () => {
     setIsLoggedIn(false);
     localStorage.setItem("isLoggedIn", "false");
     localStorage.removeItem("token");
-    navigate("/");
+    navigate("/v1/login");
   }
 
   useEffect(() => {
@@ -54,7 +62,7 @@ export const UserBlogs = () => {
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [userid]);
 
   const fetchData = async () => {
     try {
@@ -70,18 +78,19 @@ export const UserBlogs = () => {
       setBlogs((prevBlogs) => [...prevBlogs, ...newBlogs]);
       setPage((prevPage) => prevPage + 1);
 
-      if (newBlogs.length < 2) {
+      if (newBlogs.length < 6) {
         setHasMore(false);
       }
 
       console.log("Fetched blogs:", newBlogs);
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        alert("Please log in again.");
+        setSnackbarMessage("Please log in again.");
+        setSnackbarOpen(true);
         setIsLoggedIn(false);
         localStorage.setItem("isLoggedIn", "false");
         localStorage.removeItem("token");
-        navigate("/");
+        setNavigateOnClose(true);
       } else {
         console.error("Error fetching blogs:", error);
       }
@@ -127,37 +136,12 @@ export const UserBlogs = () => {
   return (
     <div>
       <Layout setIsLoggedIn={setIsLoggedIn} />
-      <InfiniteScroll
-        dataLength={blogs.length}
-        next={fetchData}
-        hasMore={hasMore}
-        loader={
-          <center>
-            <h4>Loading...</h4>
-          </center>
-        }
-      >
-        {blogs.map((blog, index) => (
-          <Blog
-            key={index}
-            id={blog._id}
-            title={blog.title}
-            description={blog.description}
-            imageURL={blog.imageurl}
-            userName={username}
-            isUserBlog={blog.author === username}
-            createdOn={blog.createdOn}
-            likedBy={blog.likedBy}
-            likeCount={blog.likecount}
-          />
-        ))}
-      </InfiniteScroll>
       {blogs.length === 0 && (
         <div style={noBlogsMessageStyle}>
           <h1 style={headingStyle}>No blogs created by you!!</h1>
           <p style={paragraphStyle}>Here is the link to create one</p>
           <Link
-            to="/addblog"
+            to="/v1/addblog"
             style={linkStyle}
             onMouseEnter={(e) =>
               (e.target.style.backgroundColor = linkHoverStyle.backgroundColor)
@@ -170,6 +154,64 @@ export const UserBlogs = () => {
           </Link>
         </div>
       )}
+      <InfiniteScroll
+        dataLength={blogs.length}
+        next={fetchData}
+        hasMore={hasMore}
+        loader={
+          <center>
+            <h4>Loading...</h4>
+          </center>
+        }
+      >
+        <Box sx={{ flexGrow: 1, padding: 2 }}>
+          <Grid container spacing={2}>
+            {blogs.map((blog, index) => (
+              <Blog
+                key={index}
+                id={blog._id}
+                title={blog.title}
+                description={blog.description}
+                imageURL={blog.imageurl}
+                userName={username}
+                isUserBlog={blog.author === username}
+                createdOn={blog.createdOn}
+                likedBy={blog.likedBy}
+                likeCount={blog.likecount}
+              />
+            ))}
+          </Grid>
+        </Box>
+      </InfiniteScroll>
+      <Snackbar
+        anchorOrigin={{ vertical, horizontal }}
+        open={snackbarOpen}
+        onClose={() => {
+          setSnackbarOpen(false);
+          if (navigateOnClose) {
+            setNavigateOnClose(false);
+            navigate("/v1/login");
+          }
+        }}
+        message={snackbarMessage}
+        key={vertical + horizontal}
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={() => {
+              setSnackbarOpen(false);
+              if (navigateOnClose) {
+                setNavigateOnClose(false);
+                navigate("/v1/login");
+              }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
     </div>
   );
 };

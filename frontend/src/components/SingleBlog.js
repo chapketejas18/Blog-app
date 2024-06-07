@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 
-const SingleBlog = () => {
+export const SingleBlog = () => {
   const { id } = useParams();
   const [blog, setBlog] = useState(null);
   const token = localStorage.getItem("token");
@@ -30,18 +30,18 @@ const SingleBlog = () => {
 
   return (
     <div style={styles.container}>
-      <Link to="/blogs" style={styles.backButton}>
+      <Link to="/" style={styles.backButton}>
         Back
       </Link>
       <h1 style={styles.title}>{blog.title}</h1>
-      <div style={styles.content}>
-        <img src={blog.imageurl} alt={blog.title} style={styles.image} />
-        <p style={styles.description}>{blog.description}</p>
-      </div>
       <p style={styles.author}>By: {blog.author}</p>
       <p style={styles.date}>
         Posted on: {new Date(blog.createdOn).toLocaleDateString()}
       </p>
+      <div style={styles.content}>
+        <img src={blog.imageurl} alt={blog.title} style={styles.image} />
+        <p style={styles.description}>{blog.description}</p>
+      </div>
     </div>
   );
 };
@@ -90,15 +90,13 @@ const styles = {
     borderRadius: "8px",
   },
   author: {
-    marginTop: "10px",
+    marginTop: "1px",
     fontStyle: "italic",
     color: "#555",
   },
   date: {
-    marginTop: "10px",
+    marginTop: "1px",
     fontStyle: "italic",
     color: "#555",
   },
 };
-
-export default SingleBlog;

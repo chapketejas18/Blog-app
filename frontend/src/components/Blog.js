@@ -1,22 +1,34 @@
-import React, { useEffect } from "react";
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardMedia from "@mui/material/CardMedia";
-import CardContent from "@mui/material/CardContent";
-import CardActions from "@mui/material/CardActions";
-import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  CardHeader,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Avatar,
+  IconButton,
+  Typography,
+  Snackbar,
+  Grid,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from "@mui/material";
 import { red } from "@mui/material/colors";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import ShareIcon from "@mui/icons-material/Share";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  Favorite as FavoriteIcon,
+  Share as ShareIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { io } from "socket.io-client";
-import { Grid } from "@mui/material";
 
 const socket = io("http://localhost:9000", {
   reconnection: true,
@@ -43,8 +55,14 @@ export const Blog = ({
   const isLoggedIn = localStorage.getItem("isLoggedIn");
   const decodedToken = token ? jwtDecode(token) : null;
   const userid = decodedToken ? decodedToken.existingUser.user._id : null;
-  const [liked, setLiked] = React.useState(likedBy.includes(userid));
-  const [likes, setLikes] = React.useState(likeCount);
+  const [liked, setLiked] = useState(likedBy.includes(userid));
+  const [likes, setLikes] = useState(likeCount);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [navigateOnClose, setNavigateOnClose] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const vertical = "bottom";
+  const horizontal = "left";
 
   useEffect(() => {
     socket.on("likeStatusUpdated", ({ blogId, likes, likedBy }) => {
@@ -72,20 +90,22 @@ export const Blog = ({
   };
 
   const handleDelete = () => {
+    setDialogOpen(false);
     deleteRequest().then(() => {
-      alert("Deleted Successfully.");
-      navigate("/blogs");
+      setSnackbarMessage("Deleted Successfully.");
+      setSnackbarOpen(true);
     });
   };
 
   const handleEdit = () => {
-    navigate("/edit", { state: { id, title, description } });
+    navigate("/v1/edit", { state: { id, title, description } });
   };
 
   const handleLike = async () => {
     if (!isLoggedIn) {
-      alert("Log in to like the blogs");
-      navigate("/");
+      setSnackbarMessage("Log in to like the blogs");
+      setSnackbarOpen(true);
+      setNavigateOnClose(true);
       return;
     }
     try {
@@ -107,11 +127,12 @@ export const Blog = ({
   };
 
   const handleShare = () => {
-    const blogUrl = `http://localhost:9000/api/blogs/${id}`;
+    const blogUrl = `http://localhost:3000/v1/blog/${id}`;
     navigator.clipboard
       .writeText(blogUrl)
       .then(() => {
-        alert("Blog link copied to clipboard!");
+        setSnackbarMessage("Blog link copied to clipboard!");
+        setSnackbarOpen(true);
       })
       .catch((err) => {
         console.error("Failed to copy: ", err);
@@ -119,7 +140,7 @@ export const Blog = ({
   };
 
   const handleClick = () => {
-    navigate(`/blog/${id}`);
+    navigate(`/v1/blog/${id}`);
   };
 
   const formatTime = (date) => {
@@ -142,9 +163,27 @@ export const Blog = ({
     }
   };
 
+  const openDeleteDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setDialogOpen(false);
+  };
+
   return (
     <Grid item xs={12} sm={6} md={4}>
-      <Card sx={{ width: "100%", margin: 2 }} key={id}>
+      <Card
+        sx={{
+          width: "100%",
+          margin: 2,
+          height: 510,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+        key={id}
+      >
         <CardHeader
           avatar={
             <Avatar sx={{ bgcolor: red[500] }} aria-label="blog">
@@ -157,8 +196,8 @@ export const Blog = ({
                 <IconButton aria-label="edit" onClick={handleEdit}>
                   <EditIcon />
                 </IconButton>
-                <IconButton aria-label="delete">
-                  <DeleteIcon onClick={handleDelete} />
+                <IconButton aria-label="delete" onClick={openDeleteDialog}>
+                  <DeleteIcon />
                 </IconButton>
               </>
             )
@@ -168,6 +207,7 @@ export const Blog = ({
               variant="h6"
               component="div"
               sx={{ fontWeight: "bold" }}
+              onClick={handleClick}
             >
               {title}
             </Typography>
@@ -187,17 +227,22 @@ export const Blog = ({
           component="img"
           height="194"
           image={imageURL}
-          sx={{ objectFit: "contain" }}
+          sx={{ objectFit: "contain", cursor: "pointer" }}
+          onClick={handleClick}
         />
         <CardContent>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            onClick={handleClick}
+          >
             {truncateText(description, 140)}
             {description.length > 140 && (
               <Typography
                 variant="body2"
                 color="primary"
-                onClick={handleClick}
                 sx={{ cursor: "pointer" }}
+                onClick={handleClick}
               >
                 {" "}
                 Read More
@@ -217,6 +262,56 @@ export const Blog = ({
           </IconButton>
         </CardActions>
       </Card>
+      <Snackbar
+        anchorOrigin={{ vertical, horizontal }}
+        open={snackbarOpen}
+        onClose={() => {
+          setSnackbarOpen(false);
+          if (navigateOnClose) {
+            setNavigateOnClose(false);
+            navigate("/v1/login");
+          }
+        }}
+        message={snackbarMessage}
+        key={vertical + horizontal}
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={() => {
+              setSnackbarOpen(false);
+              if (navigateOnClose) {
+                setNavigateOnClose(false);
+                navigate("/v1/login");
+              }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
+      <Dialog
+        open={dialogOpen}
+        onClose={closeDeleteDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Delete Blog"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this blog?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDeleteDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} color="error" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Grid>
   );
 };
