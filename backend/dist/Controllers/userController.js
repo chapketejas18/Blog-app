@@ -16,6 +16,9 @@ const UserRepository_1 = __importDefault(require("../repository/user/UserReposit
 const joi_1 = require("../config/joi");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const dotenv = require("dotenv");
+dotenv.config();
+const secrectKey = process.env.SECRECT_KEY || "";
 const transporter = nodemailer_1.default.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
@@ -167,7 +170,7 @@ class MockDataHandler {
                     return res.status(401).json({ message: existingUser.error });
                 }
                 if (existingUser) {
-                    const token = jsonwebtoken_1.default.sign({ existingUser }, "b44fd2de00412db5ebc7350536b59e86731142f100deef1d486972b9c22e6b11", {
+                    const token = jsonwebtoken_1.default.sign({ existingUser }, secrectKey, {
                         expiresIn: "40m",
                     });
                     res.status(200).json({ token: token });

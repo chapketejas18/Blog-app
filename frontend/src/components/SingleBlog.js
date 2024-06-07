@@ -54,7 +54,7 @@ const styles = {
     margin: "20px",
     padding: "20px",
     border: "1px solid #ccc",
-    maxWidth: "1200px",
+    maxWidth: "1700px",
     marginLeft: "auto",
     marginRight: "auto",
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -82,11 +82,11 @@ const styles = {
     margin: "20px 0",
     fontSize: "1.2em",
     textAlign: "justify",
-    padding: "0 10px",
+    padding: "0 60px",
   },
   image: {
     maxWidth: "100%",
-    height: "auto",
+    height: "450px",
     borderRadius: "8px",
   },
   author: {

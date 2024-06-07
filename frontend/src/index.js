@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { App } from "./App";
 import firebase from "firebase/compat/app";
 import { AuthProvider } from "./components/AuthContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC7DLM6rspr6JgoooPkTE1Zb2QZXdcjxQo",
@@ -19,7 +20,9 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <>
     <AuthProvider>
-      <App />
+      <GoogleOAuthProvider clientId="287908866352-0pjr401q6fg1d0ko47429g371j7mkm5f.apps.googleusercontent.com">
+        <App />
+      </GoogleOAuthProvider>
     </AuthProvider>
   </>
 );

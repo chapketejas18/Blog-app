@@ -3,6 +3,10 @@ import UserRepository from "../repository/user/UserRepository";
 import { userSchema } from "../config/joi";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import dotenv = require("dotenv");
+dotenv.config();
+
+const secrectKey: string = process.env.SECRECT_KEY || "";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -156,13 +160,9 @@ class MockDataHandler {
         return res.status(401).json({ message: existingUser.error });
       }
       if (existingUser) {
-        const token = jwt.sign(
-          { existingUser },
-          "b44fd2de00412db5ebc7350536b59e86731142f100deef1d486972b9c22e6b11",
-          {
-            expiresIn: "40m",
-          }
-        );
+        const token = jwt.sign({ existingUser }, secrectKey, {
+          expiresIn: "40m",
+        });
         res.status(200).json({ token: token });
       } else {
         res.status(404).json({

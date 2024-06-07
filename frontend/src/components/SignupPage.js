@@ -13,7 +13,7 @@ import { Info } from "@mui/icons-material";
 import { useNavigate, Link } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { GoogleLogin } from "react-google-login";
+import { GoogleLogin } from "@react-oauth/google";
 
 export const SignupPage = () => {
   const navigate = useNavigate();
@@ -77,8 +77,8 @@ export const SignupPage = () => {
     setSubmitting(false);
   };
 
-  const handleGoogleSuccess = async (response) => {
-    console.log("Hiii");
+  const handleGoogleSuccess = (res) => {
+    console.log("Hiii", res);
   };
 
   const handleGoogleFailure = (error) => {
@@ -226,11 +226,9 @@ export const SignupPage = () => {
                 </Button>
                 <center>
                   <GoogleLogin
-                    clientId="287908866352-8jd7l5a2edck4rtnpj4n85r0ch2oqr4b.apps.googleusercontent.com"
-                    buttonText="Sign up with Google"
                     onSuccess={handleGoogleSuccess}
                     onFailure={handleGoogleFailure}
-                    cookiePolicy={"single_host_origin"}
+                    useOneTap
                   />
                 </center>
                 <Typography align="center" sx={{ mt: 2 }}>
