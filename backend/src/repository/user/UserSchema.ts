@@ -23,5 +23,5 @@ export const userSchema: Schema<IUser> = new Schema({
   isVerified: {
     type: Boolean,
     default: false,
-  },
+  }
 });

@@ -17,6 +17,7 @@ const joi_1 = require("../config/joi");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const dotenv = require("dotenv");
+const UserModel_1 = require("../repository/user/UserModel");
 dotenv.config();
 const secrectKey = process.env.SECRECT_KEY || "";
 const transporter = nodemailer_1.default.createTransport({
@@ -126,11 +127,11 @@ class MockDataHandler {
                     const mailOptions = {
                         from: "tejaschapke21@gmail.com",
                         to: mail,
-                        subject: "Signup Successful",
+                        subject: "Signup Successful. Please verify your account.",
                         text: `Congratulations! You have successfully signed up to BloggerApp. Click here to verify: http://localhost:9000/api/verify/${createdUser._id}`,
                     };
                     yield transporter.sendMail(mailOptions);
-                    res.status(200).json({ message: "User Signed up Successfully" });
+                    res.status(200).json({ message: "User Signed up Successfully", createdUser });
                 }
                 else {
                     res.status(404).json({ message: "User already exists" });
@@ -173,7 +174,7 @@ class MockDataHandler {
                     const token = jsonwebtoken_1.default.sign({ existingUser }, secrectKey, {
                         expiresIn: "40m",
                     });
-                    res.status(200).json({ token: token });
+                    res.status(200).json({ token: token, existingUser });
                 }
                 else {
                     res.status(404).json({
@@ -183,6 +184,27 @@ class MockDataHandler {
             }
             catch (err) {
                 res.status(500).json({ error: "Internal Server Error" });
+            }
+        });
+        this.googleLogin = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { email, name } = req.body;
+            try {
+                let user = yield UserRepository_1.default.findUserByMail(email);
+                if (!user) {
+                    user = new UserModel_1.userModel({
+                        email,
+                        username: name,
+                        password: "",
+                        isVerified: true,
+                        blogs: [],
+                    });
+                    yield UserRepository_1.default.registerUser(user);
+                }
+                const token = jsonwebtoken_1.default.sign({ existingUser: { user } }, secrectKey, { expiresIn: "1h" });
+                res.status(200).json({ token });
+            }
+            catch (error) {
+                res.status(500).json({ message: "Something went wrong" });
             }
         });
     }

@@ -25,6 +25,9 @@ class UserRepository {
         this.findUserById = (id) => __awaiter(this, void 0, void 0, function* () {
             return UserModel_1.userModel.findById(id);
         });
+        this.findUserByMail = (email) => __awaiter(this, void 0, void 0, function* () {
+            return UserModel_1.userModel.findOne({ email });
+        });
         this.deletdUserById = (id) => __awaiter(this, void 0, void 0, function* () {
             return UserModel_1.userModel.findByIdAndDelete(id);
         });

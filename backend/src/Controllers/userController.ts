@@ -4,6 +4,7 @@ import { userSchema } from "../config/joi";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import dotenv = require("dotenv");
+import { userModel } from "../repository/user/UserModel";
 dotenv.config();
 
 const secrectKey: string = process.env.SECRECT_KEY || "";
@@ -117,11 +118,11 @@ class MockDataHandler {
         const mailOptions = {
           from: "tejaschapke21@gmail.com",
           to: mail,
-          subject: "Signup Successful",
+          subject: "Signup Successful. Please verify your account.",
           text: `Congratulations! You have successfully signed up to BloggerApp. Click here to verify: http://localhost:9000/api/verify/${createdUser._id}`,
         };
         await transporter.sendMail(mailOptions);
-        res.status(200).json({ message: "User Signed up Successfully" });
+        res.status(200).json({ message: "User Signed up Successfully",createdUser });
       } else {
         res.status(404).json({ message: "User already exists" });
       }
@@ -163,7 +164,7 @@ class MockDataHandler {
         const token = jwt.sign({ existingUser }, secrectKey, {
           expiresIn: "40m",
         });
-        res.status(200).json({ token: token });
+        res.status(200).json({ token: token,existingUser });
       } else {
         res.status(404).json({
           message: "This mailId is not registered. Please Register to Login",
@@ -173,6 +174,30 @@ class MockDataHandler {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+
+  googleLogin = async (req: Request, res: Response) => {
+    const { email, name } = req.body;
+
+    try {
+      let user = await UserRepository.findUserByMail(email);
+
+      if (!user) {
+        user = new userModel({
+          email,
+          username: name,
+          password: "",
+          isVerified: true,
+          blogs: [],
+        });
+        await UserRepository.registerUser(user);
+      }
+      const token = jwt.sign({ existingUser:{user}}, secrectKey, { expiresIn: "1h" });
+      res.status(200).json({ token });
+    } catch (error) {
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  };
+
 }
 
 export default new MockDataHandler();

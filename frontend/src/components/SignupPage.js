@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Button,
   TextField,
@@ -14,8 +14,10 @@ import { useNavigate, Link } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { GoogleLogin } from "@react-oauth/google";
+import { AuthContext } from "./AuthContext";
 
 export const SignupPage = () => {
+  const { setIsLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -77,8 +79,39 @@ export const SignupPage = () => {
     setSubmitting(false);
   };
 
-  const handleGoogleSuccess = (res) => {
-    console.log("Hiii", res);
+  const handleGoogleSuccess = async (res) => {
+    const tokenId = res.credential;
+    const response = await fetch(
+      "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + tokenId
+    );
+    const googleUser = await response.json();
+    console.log(googleUser);
+
+    if (googleUser) {
+      const { email, name } = googleUser;
+      try {
+        const res = await fetch("http://localhost:9000/api/blog/google-login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, name }),
+        });
+
+        if (res.ok) {
+          const result = await res.json();
+          const token = result.token;
+          localStorage.setItem("token", token);
+          localStorage.setItem("isLoggedIn", true);
+          setIsLoggedIn(true);
+          navigate("/");
+        } else {
+          alert("Google Login failed");
+        }
+      } catch (error) {
+        console.error("Google Login Error:", error);
+      }
+    }
   };
 
   const handleGoogleFailure = (error) => {

@@ -52,7 +52,10 @@ const Layout = ({ children }) => {
     if (loggedIn === "true" && token) {
       setIsLoggedInLocal(true);
       const decodedToken = jwtDecode(token);
+      console.log(":::::decodetoke", decodedToken);
       const username = decodedToken.existingUser.user.username;
+      console.log("decode", decodedToken);
+      console.log("usernme", username);
       setInitials(getInitials(username));
     } else {
       setIsLoggedInLocal(false);

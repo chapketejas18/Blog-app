@@ -16,6 +16,10 @@ class UserRepository {
     return userModel.findById(id);
   };
 
+  findUserByMail = async (email: string) => {
+    return userModel.findOne({ email });
+  }
+
   deletdUserById = async (id: string) => {
     return userModel.findByIdAndDelete(id);
   };

@@ -47,5 +47,5 @@ exports.userSchema = new mongoose_1.Schema({
     isVerified: {
         type: Boolean,
         default: false,
-    },
+    }
 });
